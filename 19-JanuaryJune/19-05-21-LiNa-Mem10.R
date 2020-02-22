@@ -1,6 +1,6 @@
 library(ggplot2)
 library(ggformula)
-library(transMem)
+library(transmem)
 #-----STOCK SOLUTIONS--------------------------------------------------------
 StockLi.1 <- 129.5 * 0.187872 * 0.99 / 0.1200962
 StockNa.1 <- 0.0861 * 22990
@@ -201,9 +201,13 @@ for (i in 1:8) {
 #pdf("calibrationplanes19-05-19",  height = 5, width = 10)
 CalCurves$Lithium.Plane.1 <- rbind(CalCurves$Lithium.1, CalCurves$Lithium.2, CalCurves$Lithium.3)
 CalCurves$Lithium.Plane.2 <- rbind(CalCurves$Lithium.4, CalCurves$Lithium.5)
+planedata <- rbind(CalCurves$Lithium.1, CalCurves$Lithium.2, CalCurves$Lithium.3,
+                   CalCurves$Lithium.4, CalCurves$Lithium.5)
+summary(calibPlane(planedata)$model)
 
 
 CalModels$Lithium.Plane.1 <- calibPlane(plane = CalCurves$Lithium.Plane.1)
+summary(CalModels$Lithium.Plane.1$model)
 CalModels$Lithium.Plane.2 <- calibPlane(plane = CalCurves$Lithium.Plane.2)
 #dev.off()
 
