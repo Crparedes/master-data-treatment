@@ -132,7 +132,7 @@ for (ii in 1:3){
 }
 #-----------------------------------------------
 #Perfiles de transporte
-pdf("Trans17-12-18.pdf", width=10, height=5)
+#pdf("Trans17-12-18.pdf", width=10, height=5)
 for (ii in 1:4) {
   transporte <- eval(parse(text = paste0("data.frame(Tiempo = c(Time1, Time1), Conc = c(ConFee4.", ii, ", ConStr4.", ii, 
                                          "), Fase=rep(c('Alimentación', 'Recuperación'), each=length(Time1)))")))
@@ -175,9 +175,9 @@ for (ii in 5:6) {
     geom_blank(aes(y = y_min)) + geom_blank(aes(y = y_max))
   print(q)
 }
-dev.off()
+#dev.off()
 
-pdf("Trans24-12-18.pdf", width=10, height=5)
+#pdf("Trans24-12-18.pdf", width=10, height=5)
 for (ii in 1:3) {
   transporte <- eval(parse(text = paste0("data.frame(Tiempo = c(Time3, Time3), Conc = c(ConFee5.", ii, ", ConStr5.", ii, 
                                          "), Fase=rep(c('Alimentación', 'Recuperación'), each=length(Time3)))")))
@@ -200,7 +200,7 @@ for (ii in 1:3) {
   print(q)
   
 }
-dev.off()
+#dev.off()
 
 
 transporte <- data.table(transporte)

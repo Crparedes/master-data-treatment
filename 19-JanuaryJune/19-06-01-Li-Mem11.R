@@ -1,6 +1,4 @@
-library(ggplot2)
-library(ggformula)
-library(transMem)
+library(transmem)
 #-----STOCK SOLUTIONS--------------------------------------------------------
 StockLi.1 <- 129.5 * 0.187872 * 0.99 / 0.1200962
 
@@ -15,7 +13,7 @@ CalCurves <- list(
 rm(list = ls()[grep("Stock", ls())])
 #-----MODELOS DE LAS CURVAS--------------------------------------------------
 CalModels <- list(
-  Lithium.1 = calibCurve(curve = CalCurves$Lithium.1, autoload = FALSE)
+  Lithium.1 = calibCurve(curve = CalCurves$Lithium.1)
 )
 #-----TIEMPOS DE LA TOMA DE ALÍCUOTAS----------------------------------------
 AliTimes <- list (
@@ -36,30 +34,31 @@ AliAbs <- list(
 AliConc <- list()
 for (i in 1:3) {
   eval(parse(text = paste0("AliConc$Feed.11.", i, ".Li = signal2conc(signal = AliAbs$Feed.11.", i, ".Li,
-                            model = CalModels$Lithium.1, autoload = FALSE)")))
+                            model = CalModels$Lithium.1)")))
   eval(parse(text = paste0("AliConc$Strip.11.", i, ".Li = signal2conc(signal = AliAbs$Strip.11.", i, ".Li,
-                            model = CalModels$Lithium.1, autoload = FALSE)")))
+                            model = CalModels$Lithium.1)")))
 }
 #-----CONCENTRACIONES A FRACCIONES-------------------------------------------
 TransFrac <- list()
 for (i in 1:3) {
   eval(parse(text = paste0("TransFrac$M.11.", i, ".Li = conc2frac(feed = AliConc$Feed.11.", i, ".Li,
-                            strip = AliConc$Strip.11.", i, ".Li, time = AliTimes$T.11.", i, ", autoload = FALSE)")))
+                            strip = AliConc$Strip.11.", i, ".Li, time = AliTimes$T.11.", i, ")")))
 }
 #-----MODELOS DE REGRESIÓN NO LINEAL-----------------------------------------
 TransNLS <- list()
 for (i in 1:3) {
-  eval(parse(text = paste0("TransNLS$M.11.", i, " <- transTrend(TransFrac$M.11.", i, ".Li, autoload = FALSE,
-                             eccen = 1)")))
+  eval(parse(text = paste0("TransNLS$M.11.", i, " <- transTrend(TransFrac$M.11.", i, ".Li, eccen = 1)")))
 }
 #-----PERFILES DE TRANSPORTE ------------------------------------------------
-pdf("Perfiles19-06-01.pdf", height = 5, width = 10)
+#pdf("Perfiles19-06-01.pdf", height = 5, width = 10)
 for (i in 1:3) {
   eval(parse(text = paste0("transPlot(trans = TransFrac$M.11.", i, ".Li, trend = TransNLS$M.11.", i, ",
                              xlim = c(0, 25), ylim = c(-0.05, 1.15),
-                             ybreaks = c(0, 0.25, 0.50, 0.75, 1, 1.1), autoload = FALSE)")))
+                             ybreaks = c(0, 0.25, 0.50, 0.75, 1, 1.1))")))
 }
-dev.off()
+
+
+#dev.off()
 ###########################################################################
 #-----PRUEBA T DE IGUALDAD DE MEDIAS-----------------------------------------
 x <- matrix(ncol = 4, nrow = 3)

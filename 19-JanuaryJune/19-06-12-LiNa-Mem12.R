@@ -1,6 +1,5 @@
 library(ggplot2)
-library(ggformula)
-library(transMem)
+library(transmem)
 PDF <- FALSE
 #-----STOCK SOLUTIONS--------------------------------------------------------
 StockLi.200 <- 129.5 * 0.187872 * 0.99 / 0.1200962
@@ -141,17 +140,16 @@ for (i in 1:8) {
                             model = CalModels$Sodium.1, dilution = dilutions$Strip.12.", i, ")")))
   eval(parse(text = paste0("AliConc$Feed.12.", i, ".Li <- signal2conc(signal = AliAbs$Feed.12.", i, ".Li,
                             model = CalModels$Lithium.P, planar = TRUE,
-                            Conc.S = fixSecondary(metalConc = AliConc$Feed.12.", i, ".Na,
+                            Conc.S = fixSecondary(conc = AliConc$Feed.12.", i, ".Na,
                                                   time = AliTimes$T.12.", i, "[c(1, 3, 5, 7, 9, 11)],
                                                   compTime = AliTimes$T.12.", i, ", order = 2))")))
   eval(parse(text = paste0("AliConc$Strip.12.", i, ".Li <- signal2conc(signal = AliAbs$Strip.12.", i, ".Li,
                             model = CalModels$Lithium.P, planar = TRUE,
-                            Conc.S = fixSecondary(metalConc = AliConc$Strip.12.", i, ".Na,
+                            Conc.S = fixSecondary(conc = AliConc$Strip.12.", i, ".Na,
                                                   time = AliTimes$T.12.", i, "[c(1, 3, 5, 7, 9, 11)],
                                                   compTime = AliTimes$T.12.", i, ", order = 2))")))
   eval(parse(text = paste0("detLi <- c(detLi, AliConc$Feed.12.", i, ".Li[1])")))
   eval(parse(text = paste0("detNa <- c(detNa, AliConc$Feed.12.", i, ".Na[1])")))
-
 }
 t.test(x = expLi, y = detLi)
 t.test(x = expNa, y = detNa)
@@ -210,7 +208,7 @@ sepFactor <- list()
 for (i in 1:8) {
   eval(parse(text = paste0("X <- data.frame(time = AliTimes$T.12.", i, ",
                                    factor = (AliConc$Strip.12.", i, ".Li/
-                                     fixSecondary(metalConc = AliConc$Strip.12.", i, ".Na,
+                                     fixSecondary(conc = AliConc$Strip.12.", i, ".Na,
                                                   time = AliTimes$T.12.", i, "[c(1, 3, 5, 7, 9, 11)],
                                                   compTime = AliTimes$T.12.", i, ", order = 2)) /
                                             (AliConc$Feed.12.", i, ".Li[1]/AliConc$Feed.12.", i, ".Na[1]))")))
@@ -219,14 +217,28 @@ for (i in 1:8) {
 }
 ssepFactor <- data.frame()
 
-for (i in 1:8) ssepFactor <- rbind(ssepFactor, sepFactor[[i]])
+for (i in 1:8) ssepFactor <- rbind(ssepFactor, rbind(c(0, 1), sepFactor[[i]]))
 
-ssepFactor$Membrana <- as.factor(paste0('Mem.12.', rep(1:8, each = 10)))
+ssepFactor$Membrana <- as.factor(paste0('Mem.12.', rep(1:8, each = 11)))
 ggplot(data = ssepFactor, aes(x = time, y = factor, colour = Membrana)) + geom_point() + theme_bw() +
   ggsci::scale_color_npg() + stat_smooth(method = "lm", formula = y ~ poly(x, 2), se = FALSE, size = 0.4) +
   xlab(label = "Tiempo (horas)") + ylab(label = "Factor de separación")
 
+ggplot(data = ssepFactor, aes(x = time, y = factor, colour = Membrana)) + geom_point() + theme_bw() +
+  ggsci::scale_color_npg() + stat_smooth(method = "loess", se = FALSE, size = 0.4) +
+  xlab(label = "Tiempo (horas)") + ylab(label = "Factor de separación")
+
+ssepFactor$PIM <- as.factor(paste0('H.', rep(1:8, each = 11)))
+ggplot(data = ssepFactor, aes(x = time, y = factor, shape = PIM)) + geom_point() + theme_bw() +
+  stat_smooth(method = "loess", se = FALSE, size = 0.4, color = 'black', span = 0.4) +
+  scale_shape_manual(values=1:nlevels(ssepFactor$Membrana)) +
+  xlab(label = "Tiempo (horas)") + ylab(label = "Factor de separación")
+
 sF <- vector()
 for (i in 1:8) sF <- c(sF, mean(sepFactor[[i]][, 2]))
+sF1 <- vector()
+for (i in 1:8) sF1 <- c(sF1, max(sepFactor[[i]][, 2]))
+sF2 <- vector()
+for (i in 1:8) sF2 <- c(sF2, sepFactor[[i]][10, 2])
 
 if (PDF) dev.off()

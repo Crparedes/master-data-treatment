@@ -50,7 +50,3 @@ ggplot(data=transporte, aes(x=Tiempo,y=Conc, group=Fase)) + #geom_smooth(alpha=0
 ggplot(data=transporte, aes(x=Tiempo,y=Conc, group=Fase)) + #geom_smooth(alpha=0.999,size=0.5) + 
   geom_point(aes(color=Fase)) + labs(y=expression(Concentración~Li~(mg~kg[Dis]^-1)), x="Tiempo (horas)")+ 
   facet_wrap(. ~ Fase, scales = "free")
-
-14*100/200
-0.01*40*0.09
-0.01*0/2

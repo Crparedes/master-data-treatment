@@ -17,8 +17,8 @@ summary(lm(Abs~Conc, data=data.frame(Conc=ConcCurva[1:7], Abs=AbsCurva[1:7])))
 
 
 plot(Curva)
-ggplot(data=Curva, aes(x=Conc,y=Abs)) + geom_smooth(method='lm',alpha=0.999,size=0.5) + 
-  geom_point() + 
+ggplot(data=Curva, aes(x=Conc,y=Abs)) + geom_smooth(method='lm',alpha=0.999,size=0.5) +
+  geom_point() +
   labs(x=expression(Concentración~Li~(mg~kg[Disolución]^-1)), y="Absorbancia (UA)")
 
 CurvaEq <- (lm(Abs~Conc, data=Curva))
@@ -35,6 +35,9 @@ ConcFaseExtrac_1<-(AbsFaseExtrac_1-CurvaEq$coefficients[1])/CurvaEq$coefficients
 C_0 <- mean(c(L_1_2_1, L_1_2_2, L_1_2_3))
 masasdisextrac <- c(20.0062, 20.0350, 20.0167, 20.0377, 20.0110)
 AmountLiext <- masasdisextrac*(ConcFaseExtrac_1-C_0)
+
+sd(c(L_1_2_1, L_1_2_2, L_1_2_3))-ConcFaseExtrac_1
+
 
 ConcFaseRec_1<-(c(0.003, 0.002, 0.003, 0.009, 0.173)-CurvaEq$coefficients[1])/CurvaEq$coefficients[2]
 masaFaseRec<-c(29.4476-14.5089, 29.7457-14.7796, 29.4241-14.4962, 29.6591-14.7917, 29.5410-14.6778)

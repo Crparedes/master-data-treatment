@@ -20,14 +20,14 @@ plot(CurvaBaja)
 plot(CurvaAlta)
 summary(lm(AbsCurva ~ ConcCurva))
 #arrows(ConcCurva,AbsCurva-sdAbsCurva,ConcCurva,AbsCurva+sdAbsCurva)
-ggplot(data=CurvaBaja, aes(x=Conc,y=Abs)) + geom_smooth(method='lm',alpha=0.999,size=0.5) + geom_point() + 
+ggplot(data=CurvaBaja, aes(x=Conc,y=Abs)) + geom_smooth(method='lm',alpha=0.999,size=0.5) + geom_point() +
   labs(x=expression(Concentración~Li~(mg~kg[Disolución]^-1)), y="Absorbancia (UA)")
-ggplot(data=CurvaAlta, aes(x=Conc,y=Abs)) + geom_smooth(method='lm',alpha=0.95,size=0.5,data=subset(CurvaAlta,Conc<8)) + geom_point() + 
+ggplot(data=CurvaAlta, aes(x=Conc,y=Abs)) + geom_smooth(method='lm',alpha=0.95,size=0.5,data=subset(CurvaAlta,Conc<8)) + geom_point() +
   labs(x=expression(Concentración~Li~(mg~kg[Disolución]^-1)), y="Absorbancia (UA)")
 
 Cbaja<-(lm(Abs~Conc,data=CurvaBaja))
 Calta<-(lm(Abs~Conc,data=CurvaAlta,subset = 1:5))
-
+summary(Cbaja)
 
 LixiB1<-(0.391-Calta$coefficients[1])/Calta$coefficients[2] *5.6613/0.1182
 LixiB2<-(0.678-Calta$coefficients[1])/Calta$coefficients[2] *6.7793/0.2605
@@ -41,3 +41,4 @@ ConcFaseExtrac_1<-(AbsFaseExtrac_1-Calta$coefficients[1])/Calta$coefficients[2]*
 ConcFaseRec_1<-(c(0.030,0.056,0.005,0.008,0.010,0.004,0.000)-Cbaja$coefficients[1])/Cbaja$coefficients[2]
 masaFaseRec<-c(54.5503-14.7740,54.4400-14.5355,54.7931-14.7907,54.4747-14.5651,54.5368-14.5959,54.8379-14.4990,54.2937-14.5161)
 MasLitRec<-ConcFaseRec_1*masaFaseRec # En microgramos
+44*1000*0.025
