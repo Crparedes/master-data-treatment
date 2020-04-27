@@ -17,7 +17,7 @@ StockLi.200_2 <- 130.3 * 0.187872 * 0.99 / 0.1205105
 
 
 # RealData...
-source(file = "19-10-03-Li-Mem17_1.R")
-source(file = "19-10-03-LiNaKMg-Mem17_2-4.R")
-source(file = "19-10-11-LiNaKMg-Mem17_5_7.R")
-source(file = "19-10-11-LiNaKMg-Mem17_8_10.R")
+source(file = "19-JuneDecember/19-10-03-Li-Mem17_1.R")
+source(file = "19-JuneDecember/19-10-03-LiNaKMg-Mem17_2-4.R")
+source(file = "19-JuneDecember/19-10-11-LiNaKMg-Mem17_5_7.R")
+source(file = "19-JuneDecember/19-10-11-LiNaKMg-Mem17_8_10.R")

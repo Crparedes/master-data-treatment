@@ -1,6 +1,5 @@
 library(ggplot2)
-library(ggformula)
-library(transMem)
+library(transmem)
 PDF <- FALSE
 #-----STOCK SOLUTIONS--------------------------------------------------------
 StockLi.200 <- 129.5 * 0.187872 * 0.99 / 0.1200962
@@ -118,7 +117,7 @@ AliAbs <- list(
 )
 #-----CONCENTRACIÓN DE ESPECIES EN LAS ALÍCUOTAS-----------------------------
 AliConc <- list()
-for (i in 1:7) {
+for (i in 1:6) {
   if (any(i == c(1, 3, 4))) {ts <- c(1, 3, 5, 6)} else {ts <- c(1, 3, 5, 6, 7)}
   eval(parse(text = paste0("AliConc$Feed.14.", i, ".Na <- signal2conc(signal = AliAbs$Feed.14.", i, ".Na,
                             model = CalModels$Sodium.1, dilution = dilutions$Feed.14.", i, ")")))
@@ -126,18 +125,18 @@ for (i in 1:7) {
                             model = CalModels$Sodium.1, dilution = dilutions$Strip.14.", i, ")")))
   eval(parse(text = paste0("AliConc$Feed.14.", i, ".Li <- signal2conc(signal = AliAbs$Feed.14.", i, ".Li,
                             model = CalModels$Lithium.P, planar = TRUE,
-                            Conc.S = fixSecondary(metalConc = AliConc$Feed.14.", i, ".Na,
+                            Conc.S = fixSecondary(conc = AliConc$Feed.14.", i, ".Na,
                                                   time = AliTimes$T.14.", i, "[ts],
                                                   compTime = AliTimes$T.14.", i, ", order = 2))")))
   eval(parse(text = paste0("AliConc$Strip.14.", i, ".Li <- signal2conc(signal = AliAbs$Strip.14.", i, ".Li,
                             model = CalModels$Lithium.P, planar = TRUE,
-                            Conc.S = fixSecondary(metalConc = AliConc$Strip.14.", i, ".Na,
+                            Conc.S = fixSecondary(conc = AliConc$Strip.14.", i, ".Na,
                                                   time = AliTimes$T.14.", i, "[ts],
                                                   compTime = AliTimes$T.14.", i, ", order = 2))")))
 }
 #-----CONCENTRACIONES A FRACCIONES-------------------------------------------
 TransFrac <- list()
-for (i in 1:7) {
+for (i in 1:6) {
   if (any(i == c(1, 3, 4))) {ts <- c(1, 3, 5, 6)} else {ts <- c(1, 3, 5, 6, 7)}
   eval(parse(text = paste0("TransFrac$M.14.", i, ".Li <- conc2frac(feed = AliConc$Feed.14.", i, ".Li[1:6],
                             strip = AliConc$Strip.14.", i, ".Li[1:6], time = AliTimes$T.14.", i, "[1:6])")))
@@ -150,26 +149,26 @@ for (i in 1:7) {
 #-----MODELOS DE REGRESIÓN NO LINEAL-----------------------------------------
 TransNLS <- list()
 SS_par <- vector()
-for (i in 1:7) {
+for (i in 1:6) {
   eval(parse(text = paste0("X <- transTrend(TransFrac$M.14.", i, ".Li, model = 'paredes', eccen = 1)")))
   SS_par <- c(SS_par, sum(resid(X$feed)^2), sum(resid(X$strip)^2))
   eval(parse(text = paste0("TransNLS$M.14.", i, " <- X")))
 
 }
 
-TransNLSXot <- list()
-SS_xot <- vector()
-for (i in 1:7) {
-  eval(parse(text = paste0("X <- transTrend(TransFrac$M.14.", i, ".Li, model = 'rodriguez')")))
-  SS_xot <- c(SS_xot, sum(resid(X$feed)^2), sum(resid(X$strip)^2))
-    eval(parse(text = paste0("TransNLSXot$M.14.", i, " <- X")))
-}
-t.test(x = SS_par, y = SS_xot, paired = TRUE)
+#TransNLSXot <- list()
+#SS_xot <- vector()
+#for (i in 1:7) {
+#  eval(parse(text = paste0("X <- transTrend(TransFrac$M.14.", i, ".Li, model = 'rodriguez')")))
+#  SS_xot <- c(SS_xot, sum(resid(X$feed)^2), sum(resid(X$strip)^2))
+#    eval(parse(text = paste0("TransNLSXot$M.14.", i, " <- X")))
+#}
+#t.test(x = SS_par, y = SS_xot, paired = TRUE)
 #-----PERFILES DE TRANSPORTE ------------------------------------------------
-if (PDF) pdf("Perfiles19-08-17.pdf", height = 7/1.8, width = 9/1.8)
+#if (PDF) pdf("Perfiles19-08-17.pdf", height = 7/1.8, width = 9/1.8)
 
 Parameters <- data.frame()
-for (i in 1:7) {
+for (i in 1:6) {
 # invisible(readline(prompt="Press [enter] to continue"))
 
   eval(parse(text = paste0("transPlot(trans = TransFrac$M.14.", i, ".Li, trend = TransNLS$M.14.", i, ",
@@ -187,10 +186,10 @@ round(Parameters, 3)
 
 #-----FACTORES DE SEPARACIÓN-------------------------------------------------
 sepFactor <- list()
-for (i in 1:7) {
+for (i in 1:6) {
   eval(parse(text = paste0("X <- data.frame(time = AliTimes$T.14.", i, "[1:6],
                                    factor = (AliConc$Strip.14.", i, ".Li[1:6] /
-                                     fixSecondary(metalConc = AliConc$Strip.14.", i, ".Na[1:4],
+                                     fixSecondary(conc = AliConc$Strip.14.", i, ".Na[1:4],
                                                   time = AliTimes$T.14.", i, "[c(1, 3, 4, 5)],
                                                   compTime = AliTimes$T.14.", i, "[1:6], order = 2)) /
                                             (AliConc$Feed.14.", i, ".Li[1]/AliConc$Feed.14.", i, ".Na[1]))")))
@@ -200,15 +199,29 @@ for (i in 1:7) {
 }
 ssepFactor <- data.frame()
 
-for (i in 1:7) ssepFactor <- rbind(ssepFactor, sepFactor[[i]])
+#for (i in 1:6) ssepFactor <- rbind(ssepFactor, sepFactor[[i]])
+for (i in 1:6) ssepFactor <- rbind(ssepFactor, rbind(c(0, 1), sepFactor[[i]]))
 
-ssepFactor$Membrana <- as.factor(paste0('Mem.14.', rep(1:7, each = 5)))
+
+ssepFactor$Membrana <- as.factor(paste0('Mem.14.', rep(1:6, each = 6)))
 ggplot(data = ssepFactor, aes(x = time, y = factor, colour = Membrana)) + geom_point() + theme_bw() +
   ggsci::scale_color_npg() + stat_smooth(method = "lm", formula = y ~ poly(x, 2), se = FALSE, size = 0.4) +
   xlab(label = "Tiempo (horas)") + ylab(label = "Factor de separación")
 
+ssepFactor$PIM <- as.factor(paste0('H.', rep(1:6, each = 6)))
+
+p_sf <- ggplot(data = ssepFactor, aes(x = time, y = factor, shape = PIM)) + 
+  theme_bw() +
+  stat_smooth(method = "loess", se = FALSE, size = 0.4, color = 'black', span = 0.9) +
+  scale_shape_manual(values=c(24, 17, 17, 17, 24, 24)) + geom_point(size = 3, col = 'black', fill = 'white') +
+  xlab(label = "Tiempo (h)") + ylab(label = "Factor de separación") + theme(legend.position = 'none')+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"))
+p_sf
+
 sF <- vector()
-for (i in 1:7) sF <- c(sF, mean(sepFactor[[i]][, 2]))
+for (i in 1:6) sF <- c(sF, mean(sepFactor[[i]][, 2]))
 
 
 gg_color_hue <- function(n) {
@@ -217,20 +230,25 @@ gg_color_hue <- function(n) {
 }
 
 #-----AGITATION SPEED EFFECTS------------------------------------------------
-vel <- c("a) 600-520", "b) 560-560", "c) 730-600", "d) 640-500", "e) 540-480", "f) 580-590", "g) 535-550")
+vel <- c("a) 600-520", "b) 560-560", "c) 730-600", "d) 640-500", "e) 540-480", "f) 580-590")#, "g) 535-550")
+
+vel <- c(600+520, 560+560, 730+600, 640+500, 540+480, 580+590)/2#535-550")
+
 frac <- vector()
-for (i in 1:7) frac <- c(frac, TransFrac[[2*i-1]]$Fraction[7:12])
-velData <- data.frame(Agit. = as.factor(rep(vel, each = 6)), Phi_strip = frac, Time = rep(AliTimes[[1]], 7))
+for (i in 1:6) frac <- c(frac, TransFrac[[2*i-1]]$Fraction[7:12])
+velData <- data.frame(Agit. = as.factor(rep(vel, each = 6)), Phi_strip = frac, Time = rep(AliTimes[[1]], 6))
 
-p <- ggplot(data = velData, aes(x = Time, y = Phi_strip, group = Agit., color = Agit.)) +
-  theme_bw() + geom_point(size = 3, shape = 15)  +
-  labs(y = expression(Phi), x = 'Time (h)') +
-  theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
-        axis.text.x = ggplot2::element_text(color = "black"),
-        axis.text.y = ggplot2::element_text(color = "black"))
+p <- ggplot(data = velData, aes(x = Time, y = Phi_strip, shape = Agit., group = Agit.)) +
+  theme_bw() +
+  labs(y = expression(Phi), x = 'Tiempo (h)') +
+  scale_shape_manual(values = c(15, 16, 17, 21, 22, 23, 24)) + theme(legend.position = 'none') + ylim(-0.01, 0.7) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"))
 
-
+p
 cols = gg_color_hue(7)
+cols <- rep('black', 6)
 e <- TransNLS[[1]]$eccen
 
 (p <- p + stat_function(fun = function(x) ((coefficients(TransNLS[[1]]$strip)[1] * x^e)
@@ -256,22 +274,24 @@ e <- TransNLS[[1]]$eccen
     stat_function(fun = function(x) ((coefficients(TransNLS[[6]]$strip)[1] * x^e)
                                      / (1 / coefficients(TransNLS[[6]]$strip)[2] + x^e)),
                   color = cols[6], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
-                  xlim = c(0, 5), size = 0.4) +
-    stat_function(fun = function(x) ((coefficients(TransNLS[[7]]$strip)[1] * x^e)
-                                     / (1 / coefficients(TransNLS[[7]]$strip)[2] + x^e)),
-                  color = cols[7], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
-                  xlim = c(0, 5), size = 0.4) +
-    geom_point(size = 3, shape = 15, color = rep(gg_color_hue(7), each = 6)))
+                  xlim = c(0, 5), size = 0.4))#+
+(p <- p + geom_point(size = 3, color = 'black', fill = 'white', shape = rep(c(24, 17, 17, 17, 24, 24), each = 6)))
+
+#    stat_function(fun = function(x) ((coefficients(TransNLS[[7]]$strip)[1] * x^e)
+#                                     / (1 / coefficients(TransNLS[[7]]$strip)[2] + x^e)),
+#                  color = cols[7], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
+#                  xlim = c(0, 5), size = 0.4) +
+#    geom_point(size = 3, shape = 15, color = rep(gg_color_hue(7), each = 6)))
 
 
 if (PDF) dev.off()
 
 #-----FACTORES DE SEPARACIÓN-------------------------------------------------
 sepFactor <- list()
-for (i in 1:7) {
+for (i in 1:6) {
   eval(parse(text = paste0("X <- data.frame(time = AliTimes$T.14.", i, "[1:6],
                            factor = (AliConc$Strip.14.", i, ".Li[1:6] /
-                           fixSecondary(metalConc = AliConc$Strip.14.", i, ".Na[1:4],
+                           fixSecondary(conc = AliConc$Strip.14.", i, ".Na[1:4],
                            time = AliTimes$T.14.", i, "[c(1, 3, 4, 5)],
                            compTime = AliTimes$T.14.", i, "[1:6], order = 2)) /
                            (AliConc$Feed.14.", i, ".Li[1]/AliConc$Feed.14.", i, ".Na[1]))")))
@@ -281,15 +301,15 @@ for (i in 1:7) {
 }
 ssepFactor <- data.frame()
 
-for (i in 1:7) ssepFactor <- rbind(ssepFactor, sepFactor[[i]])
+for (i in 1:6) ssepFactor <- rbind(ssepFactor, sepFactor[[i]])
 
-ssepFactor$Membrana <- as.factor(paste0('Mem.14.', rep(1:7, each = 5)))
+ssepFactor$Membrana <- as.factor(paste0('Mem.14.', rep(1:6, each = 5)))
 ggplot(data = ssepFactor, aes(x = time, y = factor, colour = Membrana)) + geom_point() + theme_bw() +
   ggsci::scale_color_npg() + stat_smooth(method = "lm", formula = y ~ poly(x, 2), se = FALSE, size = 0.4) +
   xlab(label = "Tiempo (horas)") + ylab(label = "Factor de separación")
 
 sF <- vector()
-for (i in 1:7) sF <- c(sF, mean(sepFactor[[i]][, 2]))
+for (i in 1:6) sF <- c(sF, mean(sepFactor[[i]][, 2]))
 
 
 gg_color_hue <- function(n) {
@@ -299,12 +319,12 @@ gg_color_hue <- function(n) {
 
 
 #-----AGITATION SPEED EFFECTS------------------------------------------------
-caja <- c("plana", "rugosa", "rugosa", "plana", "plana", "rugosa", "rugosa")
+caja <- c("plana", "rugosa", "rugosa", "plana", "plana", "rugosa")
 frac <- vector()
-for (i in 1:7) frac <- c(frac, TransFrac[[2*i-1]]$Fraction[7:12])
-velData <- data.frame(Agit. = as.factor(rep(caja, each = 6)), Phi_strip = frac, Time = rep(AliTimes[[1]], 7))
+for (i in 1:6) frac <- c(frac, TransFrac[[2*i-1]]$Fraction[7:12])
+velData <- data.frame(Agit. = as.factor(rep(caja, each = 6)), Phi_strip = frac, Time = rep(AliTimes[[1]], 6))
 
-p <- ggplot(data = velData, aes(x = Time, y = Phi_strip, group = Agit., color = Agit.)) +
+p1 <- ggplot(data = velData, aes(x = Time, y = Phi_strip, group = Agit., color = Agit.)) +
   theme_bw() + geom_point(size = 3, shape = 15)  +
   labs(y = expression(Phi), x = 'Time (h)') +
   theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
@@ -315,7 +335,7 @@ p <- ggplot(data = velData, aes(x = Time, y = Phi_strip, group = Agit., color = 
 cols = gg_color_hue(7)
 e <- TransNLS[[1]]$eccen
 
-(p <- p + stat_function(fun = function(x) ((coefficients(TransNLS[[1]]$strip)[1] * x^e)
+(p1 <- p1 + stat_function(fun = function(x) ((coefficients(TransNLS[[1]]$strip)[1] * x^e)
                                            / (1 / coefficients(TransNLS[[1]]$strip)[2] + x^e)),
                         color = cols[1], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
                         xlim = c(0, 5), size = 0.4) +
@@ -339,19 +359,20 @@ e <- TransNLS[[1]]$eccen
                                      / (1 / coefficients(TransNLS[[6]]$strip)[2] + x^e)),
                   color = cols[6], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
                   xlim = c(0, 5), size = 0.4) +
-    stat_function(fun = function(x) ((coefficients(TransNLS[[7]]$strip)[1] * x^e)
-                                     / (1 / coefficients(TransNLS[[7]]$strip)[2] + x^e)),
-                  color = cols[7], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
-                  xlim = c(0, 5), size = 0.4) +
-    geom_point(size = 3, shape = 15, color = rep(gg_color_hue(7), each = 6)))
+    #stat_function(fun = function(x) ((coefficients(TransNLS[[7]]$strip)[1] * x^e)
+    #                                 / (1 / coefficients(TransNLS[[7]]$strip)[2] + x^e)),
+    #              color = cols[7], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
+    #              xlim = c(0, 5), size = 0.4) +
+    geom_point(size = 3, shape = 15, color = rep(gg_color_hue(6), each = 6)))
 
 
 if (PDF) dev.off()
 ConsolidLi <- matrix(nrow = 12, ncol = 7)
 ConsolidNa <- matrix(nrow = 8, ncol = 7)
-for (i in 1:7) {
+for (i in 1:6) {
   ConsolidLi[, i] <- TransFrac[[(2*i-1)]][, 3]
   ConsolidNa[, i] <- TransFrac[[(2*i)]][, 3]
 }
 
 TransFrac[[3]]
+

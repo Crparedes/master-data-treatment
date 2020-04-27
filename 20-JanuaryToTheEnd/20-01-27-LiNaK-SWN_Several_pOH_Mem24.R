@@ -1,6 +1,6 @@
 library(transmem)
 library(ggplot2)
-PDF <- TRUE
+PDF <- FALSE
 if (PDF) pdf("SWN-SeveralpOH-27-01-19.pdf", height = 7/1.3, width = 9/1.3)
 
 #-----STOCK SOLUTIONS--Prepared January 18th, 2020---------------------------
@@ -156,7 +156,7 @@ for (i in 1:4) {
 for (i in 1:4) {
   transPlot(trans = TransFrac[[i]], trend = TransNLS[[i]], xlim = c(0, 4.5), ylim = c(-0.05, 1.1),
             ybreaks = c(0, 0.20, 0.40, 0.60, 0.80, 1), xbreaks = 1:5, secondary = TransFrac[[4+i]],
-            ternary = TransFrac[[8+i]], bw = TRUE, srs = 0.6, sec.trend = 'loess')
+            tertiary = TransFrac[[8+i]], bw = TRUE, srs = 0.6, sec.trend = 'loess')
 }
 
 if (PDF) dev.off()

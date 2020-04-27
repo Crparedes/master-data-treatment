@@ -89,11 +89,11 @@ dilutions <- list(
 AliAbs <- list(
   Feed.16.1.Li.a   = c(0.302, 0.175, 0.107, 0.071, 0.047, 0.032),
   Strip.16.1.Li.a  = c(0.000, 0.123, 0.188, 0.222, 0.246, 0.267),
-  Feed.16.1.Na.a   = c(0.255, 0.262, 0.253),
+  Feed.16.1.Na.a   = c(0.255, 0.250, 0.240),
   Strip.16.1.Na.a  = c(0.027, 0.027, 0.052),
   Feed.16.1.Li.b   = c(0.307, 0.198, 0.132, 0.106, 0.081, 0.061),
   Strip.16.1.Li.b  = c(0.000, 0.103, 0.167, 0.193, 0.216, 0.237),
-  Feed.16.1.Na.b   = c(0.276, 0.274, 0.265),
+  Feed.16.1.Na.b   = c(0.276, 0.270, 0.265),
   Strip.16.1.Na.b  = c(0.001, 0.037, 0.100),
   Feed.16.2.Li.b   = c(0.300, 0.205, 0.150, 0.117, 0.093, 0.076),
   Strip.16.2.Li.b  = c(0.001, 0.090, 0.146, 0.174, 0.195, 0.238),
@@ -132,12 +132,12 @@ for (i in 1:(length(AliConc)/4)) {
                                   dilution = dilutions[[2*i]])
   #Feed lithium
   AliConc[[4*i-3]] <- signal2conc(signal = AliAbs[[4*i-3]], model = CalModels$Lithium.P, planar = TRUE,
-                                  Conc.S = fixSecondary(metalConc = AliConc[[4*i-1]],
+                                  Conc.S = fixSecondary(conc = AliConc[[4*i-1]],
                                                         time = AliTimes[[i]][ts], compTime = AliTimes[[i]],
                                                         order = 2))
   #Strip litium
   AliConc[[4*i-2]] <- signal2conc(signal = AliAbs[[4*i-2]], model = CalModels$Lithium.P, planar = TRUE,
-                                  Conc.S = fixSecondary(metalConc = AliConc[[4*i]],
+                                  Conc.S = fixSecondary(conc = AliConc[[4*i]],
                                                         time = AliTimes[[i]][ts], compTime = AliTimes[[i]],
                                                         order = 2))
 }
@@ -176,7 +176,7 @@ lm(SS_xot~SS_par)
 sepFactor <- vector(mode = "list", length = length(TransFrac)/2)
 names(sepFactor) <- names(TransNLS)
 for (i in 1:length(sepFactor)) {
-  sec <- fixSecondary(metalConc = AliConc[[4*i]], time = AliTimes[[i]][ts], compTime = AliTimes[[i]], order = 2)
+  sec <- fixSecondary(conc = AliConc[[4*i]], time = AliTimes[[i]][ts], compTime = AliTimes[[i]], order = 2)
   X <- data.frame(time = AliTimes[[i]],
                   factor = (AliConc[[i*4-2]]/sec) / (AliConc[[i*4-3]][1]/AliConc[[i*4-1]][1]))
   #X$factor[1] <- 1
@@ -232,3 +232,11 @@ for (i in 1:8) {
 colnames(Parameters) <- c(names(TransNLS[[1]]$Result), "sF")
 round(Parameters, 3)
 if (PDF) dev.off()
+
+p <- transPlotWR(trans = list(TransFrac[[1]], TransFrac[[3]]),
+                 trend = list(TransNLS[[1]], TransNLS[[2]]),
+                 secondary = list(TransFrac[[2]], TransFrac[[4]]),
+                 lin.secon = TRUE, xlim = c(0, 5.2), ylim = c(-0.01, 1.01),
+                 ybreaks = c(0, 0.20, 0.40, 0.60, 0.80, 1), xbreaks = 1:5, xlab = 'Tiempo (h)', bw = TRUE, srs = 0.5)
+p
+

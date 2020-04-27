@@ -1,3 +1,5 @@
+library('transmem')
+library('ggplot2')
 StockNa.5000_1  <- 0.6399 * 0.996 / 50.0160 * 0.393372 * 1000000
 StockNa.200_3   <- 1.2006 *  StockNa.5000_1 / 30.2104
 StockNa.20_3    <- 3.0048 *  StockNa.200_3 / 30.2730
@@ -13,6 +15,7 @@ StockMg.4_3     <- 2.9958 * StockMg.40_3 / 30.0684
   
 CalCurves <- list(
   # For sodium the order is AAS-LaCl5, AAS-KCl, AAS-LiCl, AAS-CsCl3, AES-LaCl5, AES-KCl, AES-LiCl, AES-CsCl3
+  # Cesium is the only one that really sucks
   Sodium.1 = data.frame(Conc = c(0.0000, 0.0554, 0.1119, 0.3022, 0.6121, 0.8995) *
                           StockNa.2_3 / c(2.0000, 2.0248, 2.0477, 2.0366, 2.0531, 2.0452),
                         Signal  = c(0, 0.008, 0.015, 0.042, 0.084, 0.127)),
@@ -36,8 +39,12 @@ CalCurves <- list(
                         Signal  = c(0.230, 0.288, 0.360, 0.630, 0.926)),
   Sodium.8 = data.frame(Conc = c(0.0000, 0.1125, 0.2988, 0.6058) *
                           StockNa.2_3 / c(2.0000, 2.0011, 2.0507, 2.1100),
-                        Signal  = c(1.020, 1.070, 1.274, 1.371)),
+                        Signal  = c(0.020, 0.070, 0.274, 0.371)),
   # For Potassium the order is AAS-CsCl3, AAS-Alone, AAS-LaCl5, AAS-LiCl, AES-CsCl3, AES-Alone, AES-LaCl5, AES-LiCl
+  # AES-LiCL -> Buena dependencia, orden 2  AAS -> Regular
+  # AES-La -> malo                          AAS -> muy malo
+  # AES Alone -> bueno                      AAS -> bueno
+  # AES-Cs -> Pésimo                        AAS -> Pésimo
   Potassium.1 = data.frame(Conc = c(0.0000, 1.0503, 2.1497, 3.0142, 3.5976) * StockK.2_3 /
                              c(6.0000, 6.1914, 6.2460, 6.1937, 6.0239),
                            Signal = c(0.000, 0.035, 0.101, 0.210, 0.359)),
@@ -63,6 +70,7 @@ CalCurves <- list(
                              c(2.0000, 2.0061, 2.0223, 2.1984, 2.0371),
                            Signal = c(0.000, 0.129, 0.347, 0.731, 1.162)),
   # For Magnessium the order is AAS-Alone, AAS-LaCl5, AAS-KCl, AES-KCl+LaCl5
+  
   Magnessium.1 = data.frame(Conc = c(0.0000, 0.1062, 0.3056, 0.6106, 0.9048) * StockMg.4_3 /
                              c(2.0000, 2.0648, 2.1102, 2.0322, 2.0463),
                            Signal = c(0.000, 0.121, 0.330, 0.630, 0.842)),
@@ -78,13 +86,58 @@ CalCurves <- list(
 )
 
 CalModels <- list()
-pdf("SodiumLowCurves.pdf")
+#pdf("SodiumLowCurves.pdf")
 for (i in 1:4) CalModels[[i]] <- calibCurve(curve = CalCurves[[i]])
 for (i in 5:8) CalModels[[i]] <- calibCurve(curve = CalCurves[[i]], order = 2)
+
+calibCurve(curve = CalCurves[[8]], order = 2)
+
+Natrium <- function(i) {
+  Nat <- ggplot(data = CalCurves[[i]], aes(x = Conc, y = Signal)) +
+    theme_bw() + geom_point(size = 3, shape = 16)  + 
+    labs(y = 'Señal (cuentas)', x = expression(paste('Concentración mg k', g^{-1}))) +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          axis.text.x = element_text(color = "black"),
+          axis.text.y = element_text(color = "black")) + 
+    #scale_y_continuous(limits = c(0, -5)) + 
+    scale_x_continuous(limits = c(-1, 7)) +  
+    coord_cartesian(xlim = c(0, 1), ylim = c(0, 1.2)) +
+    geom_smooth(method = 'lm', formula = y ~ poly(x, 2), fullrange = TRUE, color = 'black', size = 0.4)
+  print(Nat)
+} 
+Natrium(5)
+Natrium(6)
+Natrium(7)
+Natrium(8)
+
+
+
+plot(CalModels[[7]]$residuals)
 for (i in 9:12) CalModels[[i]] <- calibCurve(curve = CalCurves[[i]])
 for (i in 13:16) CalModels[[i]] <- calibCurve(curve = CalCurves[[i]], order = 2)
 for (i in 17:20) CalModels[[i]] <- calibCurve(curve = CalCurves[[i]], order = 2)
 dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #Old curves another ranges...
 StockNa.200_2 <- StockNa.5000_1  * 0.4820 / 12.0120

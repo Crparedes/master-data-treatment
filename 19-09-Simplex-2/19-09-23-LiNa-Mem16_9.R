@@ -90,12 +90,12 @@ for (i in 1:(length(AliConc)/4)) {
                                   dilution = dilutions[[2*i]])
   #Feed lithium
   AliConc[[4*i-3]] <- signal2conc(signal = AliAbs[[4*i-3]], model = CalModels$Lithium.P, planar = TRUE,
-                                  Conc.S = fixSecondary(metalConc = AliConc[[4*i-1]],
+                                  Conc.S = fixSecondary(conc = AliConc[[4*i-1]],
                                                         time = AliTimes[[i]][ts], compTime = AliTimes[[i]],
                                                         order = 2))
   #Strip litium
   AliConc[[4*i-2]] <- signal2conc(signal = AliAbs[[4*i-2]], model = CalModels$Lithium.P, planar = TRUE,
-                                  Conc.S = fixSecondary(metalConc = AliConc[[4*i]],
+                                  Conc.S = fixSecondary(conc = AliConc[[4*i]],
                                                         time = AliTimes[[i]][ts], compTime = AliTimes[[i]],
                                                         order = 2))
 }
@@ -134,7 +134,7 @@ lm(SS_xot~SS_par)
 sepFactor <- vector(mode = "list", length = length(TransFrac)/2)
 names(sepFactor) <- names(TransNLS)
 for (i in 1:length(sepFactor)) {
-  sec <- fixSecondary(metalConc = AliConc[[4*i]], time = AliTimes[[i]][ts], compTime = AliTimes[[i]], order = 2)
+  sec <- fixSecondary(conc = AliConc[[4*i]], time = AliTimes[[i]][ts], compTime = AliTimes[[i]], order = 2)
   X <- data.frame(time = AliTimes[[i]],
                   factor = (AliConc[[i*4-2]]/sec) / (AliConc[[i*4-3]][1]/AliConc[[i*4-1]][1]))
   #X$factor[1] <- 1
@@ -160,11 +160,11 @@ gg_color_hue <- function(n) {
 }
 #-----PERFILES DE TRANSPORTE ------------------------------------------------
 for (i in 1:1) {
-  transPlotWR(trans = list(TransFrac[[4*i-3]], TransFrac[[4*i-1]]),
+  (p <- transPlotWR(trans = list(TransFrac[[4*i-3]], TransFrac[[4*i-1]]),
               trend = list(TransNLS[[2*i-1]], TransNLS[[2*i]]),
               secondary = list(TransFrac[[4*i-2]], TransFrac[[4*i]]),
-              lin.secon = TRUE, xlim = c(0, 5.2), ylim = c(-0.05, 1.08),
-              ybreaks = c(0, 0.20, 0.40, 0.60, 0.80, 1), xbreaks = 1:5)
+              lin.secon = TRUE, xlim = c(0, 5.2), ylim = c(-0.01, 1.01),
+              ybreaks = c(0, 0.20, 0.40, 0.60, 0.80, 1), xbreaks = 1:5, xlab = 'Tiempo (h)', bw = TRUE, srs = 0.5))
 }
 # invisible(readline(prompt="Press [enter] to continue"))
 #-----PARÁMETROS DE DESEMPEÑO------------------------------------------------

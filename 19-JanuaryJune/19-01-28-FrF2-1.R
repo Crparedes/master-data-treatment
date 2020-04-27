@@ -3,9 +3,12 @@ library(FrF2)
 
 variables <- list(X1_CTA = c(30, 80), X2_NPOE = c(20, 40), X3_LIX = c(12, 50), X4_Cyanex = c(12, 50), 
                   X5_NaOH = c(10, 1), X7_HCl = c(0.5, 0.1), X6_Li = c(2, 10))
+variables1 <- list(CTA = c(30, 80), NPOE = c(20, 40), LIX = c(12, 50), Cyanex = c(12, 50), 
+                   NaOH = c(10, 1), HCl = c(0.5, 0.1), Li = c(2, 10))
 
 FrF2(8, factor.names = variables, seed = 12, randomize = FALSE)
 (Dessign <- FrF2(8, factor.names = variables, seed = 12))
+(Dessign1 <- FrF2(8, factor.names = variables1, seed = 12))
 
 # Run scripts associated with the lithium cuantification corresponding to these days...
 source("19-JanuaryJune/19-02-02-Li-MemX.R")
@@ -22,6 +25,7 @@ for (i in 1:8) {
 Eficiencia <- MaxStrips[order]
 
 Des.Resp <- add.response(Dessign, 100*Eficiencia)
+Des.Resp1 <- add.response(Dessign1, 100*Eficiencia)
 #IAPlot(Des.Resp)
 MEPlot(Des.Resp)
 halfnormal(Des.Resp, code = TRUE, alpha = 0.10)
@@ -40,6 +44,10 @@ anova(lm(X100...Eficiencia ~ X1_CTA + X2_NPOE + X3_LIX + X4_Cyanex + X5_NaOH + X
 source("19-JanuaryJune/customMEPlot.R")
 cMEPlot(Des.Resp)
 
+source("custom-DanielPlot.R")
+DanielPlot(Des.Resp1, main = '', code = FALSE, alpha = 0.1, autolab = FALSE, 
+           pch = c(5, 5, 5, 5, 5, 5, 5), cex.pch = 1.2, half = TRUE)
+abline(a = -2, b = 0.12, lty = 2)
 
 plot(Des.Resp)
 #0.01*0.25*39997

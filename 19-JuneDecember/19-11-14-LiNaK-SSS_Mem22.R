@@ -139,8 +139,8 @@ transPlotWR(trans = list(TransFrac[[3]], TransFrac[[4]]), trend = list(TransNLS[
 p <- transPlotWR(trans = list(TransFrac[[3]], TransFrac[[4]]), trend = list(TransNLS[[3]], TransNLS[[4]]),
                  secondary = list(TransFrac[[5]], TransFrac[[6]]),
                  tertiary = list(TransFrac[[7]], TransFrac[[8]]), size = 2, plot = FALSE,
-                 bw = FALSE, srs = 0.55, explicit = TRUE)
-p <- p + theme(text = element_text(size = 9))
+                 bw = TRUE, srs = 0.55, explicit = FALSE, xlab = 'Tiempo (h)')
+(p <- p) #+ theme(text = element_text(size = 9))
 #pdf("SSSProfiles.pdf", height = 70/25.4, width = 90/25.4)
 p
 #dev.off()
@@ -161,7 +161,7 @@ for (i in 1:length(sepFactor)) {
   }
   sec <- fixSecondary(conc = AliConc[[8+2*i]], time = AliTimes[ts], compTime = AliTimes, order = 1)
   X <- data.frame(time = AliTimes,
-                  factor = (oriSTRIP/sec) / (oriFEED/AliConc[[7+2*i]][1]))
+                  factor = (oriSTRIP/sec) / (oriFEED[1]/AliConc[[7+2*i]][1]))
   #X$factor[1] <- 1
   X[1, 2] <- 1
   sepFactor[[i]] <- X
@@ -171,11 +171,27 @@ ssepFactor <- data.frame()
 for (i in 1:length(sepFactor)) ssepFactor <- rbind(ssepFactor, sepFactor[[i]])
 
 ssepFactor$Membrana <- as.factor(rep(c("A", "B", "C", "D"), each = 7))
+ssepFactor$PIM <- as.factor(rep(c("Sodio", "Potasio"), each = 14))
 ssepFactor$System <- as.factor(rep(c("Sodio", "Potasio"), each = 14))
 print(ggplot(data = ssepFactor, aes(x = time, y = factor, colour = System)) + geom_point() + theme_bw() +
         ggsci::scale_color_npg() + stat_smooth(method = "lm", formula = y ~ poly(x, 3), se = FALSE,
                                                size = 0.4, aes(group = Membrana, colour = System)) +
         xlab(label = "Tiempo (horas)") + ylab(label = "Factor de separación"))
+
+sssepFactor <- data.frame(factor = rowMeans(cbind(ssepFactor$factor[c(1:7, 15:21)], ssepFactor$factor[c(8:14, 22:28)])),
+                          sd = apply(cbind(ssepFactor$factor[c(1:7, 15:21)], ssepFactor$factor[c(8:14, 22:28)]), 1, sd),
+                          time = ssepFactor$time[1:14], PIM = rep(c('A', 'B'), each = 7))
+
+p_sf <- ggplot(data = sssepFactor, aes(x = time, y = factor, shape = PIM)) + 
+  theme_bw() + geom_errorbar(aes(x = time, ymin = factor - sd, ymax = factor + sd), width = 0.1) +
+  stat_smooth(method = "loess", se = FALSE, size = 0.4, color = 'black', span = 0.71) +
+  scale_shape_manual(values=c(24, 17)) + geom_point(size = 3, col = 'black', fill = 'white') +
+  xlab(label = "Tiempo (h)") + ylab(label = "Factor de separación") + theme(legend.position = 'none') +
+  scale_y_continuous(limits = c(0, 144), breaks = seq(0, 140, 20)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"))
+p_sf
 
 sF <- vector()
 for (i in 1:length(sepFactor)) sF <- c(sF, mean(sepFactor[[i]][, 2]))

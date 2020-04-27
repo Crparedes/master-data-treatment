@@ -72,9 +72,9 @@ gg_color_hue <- function(n) {
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 #-----PERFILES DE TRANSPORTE ------------------------------------------------
-transPlotWR(trans = TransFrac, trend = TransNLS, xlim = c(0, 5.2), ylim = c(-0.05, 1.08),
-            ybreaks = c(0, 0.20, 0.40, 0.60, 0.80, 1), xbreaks = 1:5)
-
+p <- transPlotWR(trans = TransFrac, trend = TransNLS, xlim = c(0, 5.2), ylim = c(-0.01, 1.01),
+            ybreaks = c(0, 0.20, 0.40, 0.60, 0.80, 1), xbreaks = 1:5, bw = TRUE, srs = 0.5)
+p
 # invisible(readline(prompt="Press [enter] to continue"))
 #-----PARÁMETROS DE DESEMPEÑO------------------------------------------------
 Parameters <- data.frame()

@@ -44,7 +44,10 @@ CalCurves <- list(
 #-----MODELOS DE LAS CURVAS--------------------------------------------------
 CalModels <- list()
 order = c(1, 1, 1, 2, 2, 2, 2)
+badpoint = c(NULL, NULL, NULL, 6, 6, NULL, NULL)
 for (i in 1:length(CalCurves)) CalModels[[i]] <- calibCurve(curve = CalCurves[[i]], order = order[i], plot = TRUE)
+calibCurve(CalCurves[[3]], order = 2, badpoint = 6)
+
 names(CalModels) <- names(CalCurves)
 #-----TIEMPOS DE LA TOMA DE ALÍCUOTAS----------------------------------------
 AliTimes <- c(0, 1, 3, 4.5, 4.51, 5.5, 7.5, 9, 9.01, 10, 12, 13.5, 13.51, 14.5, 16.5, 18)
@@ -207,7 +210,22 @@ TransFrac <- vector(mode = "list", length = 4)
 for (i in 1:4) TransFrac[[i]] <- conc2frac(feed = AliConc[[i]], strip = AliConc[[4 + i]],
                                            time = AliTimes[(4*i - 3):(4*i)],
                                            normalize = TRUE)
-cyclesPlot(transList = TransFrac)
+cyclesPlot(trans = TransFrac)
+
+p1 <- ggplot(data = rbind(TransFrac[[1]], TransFrac[[2]], TransFrac[[3]], TransFrac[[4]]), 
+             aes(x = Time, y = Fraction, shape = Phase, group = paste0(Phase, rep(1:8, each = 4)))) +
+  geom_vline(xintercept = seq(0, 18, 4.5), linetype = 'dashed', color = 'gray') +
+  theme_bw() + 
+  geom_smooth(method = 'loess', color = 'black', lwd = 0.5, span = 1, se = FALSE) +
+  scale_x_continuous(breaks = seq(0, 18, 4), limits = c(0, 18.5)) +
+  scale_y_continuous(breaks = seq(0, 1.75, 0.25)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"), axis.text.y = element_text(color = "black")) +
+  labs(y = expression(Phi), x = 'Tiempo (h)') +
+  geom_point(size = 2.4, color = 'black', fill = 'white') +
+  scale_shape_manual(values = c(15, 22)) +
+  theme(legend.position = "none")#, text = element_text(size = 9))
+p1
 
 SConcNa <- vector()
 for (i in 1:n) SConcNa <- c(SConcNa, AliConc[[i+12]])
@@ -230,7 +248,18 @@ ggplot(data = A, aes(x = Tiempo, y = Conc, shape = Phase, group = Group)) +
   theme(text = element_text(size = 9), legend.position = "none")
 if (PDF) dev.off()
 
-
+p2 <- ggplot(data = A, aes(x = Tiempo, y = Conc, shape = Phase, group = Group)) +
+  geom_vline(xintercept = seq(0, 18, 4.5), linetype = 'dashed', color = 'gray') +
+  theme_bw() + 
+  geom_smooth(method = 'loess', color = 'black', lwd = 0.5, span = 1, se = FALSE) +
+  scale_x_continuous(breaks = seq(0, 18, 4), limits = c(0, 18.5)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"), axis.text.y = element_text(color = "black")) +
+  labs(y = expression(Phi), x = 'Tiempo (h)') +
+  geom_point(size = 2.4, color = 'black', fill = 'white') +
+  scale_shape_manual(values = c(15, 22)) +
+  theme(legend.position = "none")#, text = element_text(size = 9))
+p2
 
 SConcK <- vector()
 for (i in 1:(n)) SConcK <- c(SConcK, AliConc[[i+20]])
@@ -253,9 +282,42 @@ ggplot(data = A, aes(x = Tiempo, y = Conc, shape = Phase, group = Group)) +
   theme(text = element_text(size = 9), legend.position = "none")
 if (PDF) dev.off()
 
+p3 <- ggplot(data = A, aes(x = Tiempo, y = Conc, shape = Phase, group = Group)) +
+  geom_vline(xintercept = seq(0, 18, 4.5), linetype = 'dashed', color = 'gray') +
+  theme_bw() + 
+  geom_smooth(method = 'loess', color = 'black', lwd = 0.5, span = 1, se = FALSE) +
+  scale_x_continuous(breaks = seq(0, 18, 4), limits = c(0, 18.5)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"), axis.text.y = element_text(color = "black")) +
+  labs(y = expression(Phi), x = 'Tiempo (h)') +
+  geom_point(size = 2.4, color = 'black', fill = 'white') +
+  scale_shape_manual(values = c(15, 22)) +
+  theme(legend.position = "none")#, text = element_text(size = 9))
+p3
 if (PDF) dev.off()
+
+permcoef(trans = TransFrac[[1]], vol = 85, conc0 = 0.000180, area = 19.6, units = c('cm3', 'cm2', 'h'))
+
+TransFrac
 
 # Separation factors
 for (i in 1:8) AliConc[[i]] <- AliConc[[i]] / 1000
-(SF_Na <- (SConcLi[17:32] * Li_0)/(SConcNa[17:32] * Na_0) / (Li_0 / Na_0))
-(SF_K  <- (SConcLi[17:32] * Li_0)/(SConcK[17:32] * K_0) / (Li_0 / K_0))
+(SF_Na <- ((SConcLi[17:32] * Li_0)/(SConcNa[17:32] * Na_0)) / (Li_0 / Na_0))
+(SF_K  <- ((SConcLi[17:32] * Li_0)/(SConcK[17:32] * K_0)) / (Li_0 / K_0))
+
+SF_K[1] <- SF_Na[1] <- 1
+sssepFactor <- data.frame(factor = c(SF_Na, SF_K), time = AliTimes, PIM = rep(c('A', 'B'), each = 16))
+
+p_sf <- ggplot(data = sssepFactor, aes(x = time, y = factor, shape = PIM)) + 
+  theme_bw() + #geom_errorbar(aes(x = time, ymin = factor - sd, ymax = factor + sd), width = 0.1) +
+  stat_smooth(method = "loess", se = FALSE, size = 0.4, color = 'black', span = 0.4) +
+  scale_shape_manual(values=c(24, 17)) + geom_point(size = 3, col = 'black', fill = 'white') +
+  xlab(label = "Tiempo (h)") + ylab(label = "Factor de separación") + theme(legend.position = 'none') +
+  scale_y_continuous(limits = c(0, 120), breaks = seq(0, 140, 20)) +
+  geom_vline(xintercept = seq(0, 18, 4.5), linetype = 'dashed', color = 'gray') +
+  scale_x_continuous(breaks = seq(0, 18, 2), limits = c(-0.2, 18.2)) +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black"))
+p_sf
+

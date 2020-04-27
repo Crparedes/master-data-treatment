@@ -84,20 +84,24 @@ C <- data.frame(Phase = rep(c('Feed', 'Strip'), each = 25), Conc = apply(cbind(A
                 Group = rep(paste0('g', 1:10), each = 5))
 
 if (PDF) pdf("PreconcProfiles.pdf", height = 70/25.4, width = 90/25.4)
-ggplot(data = C, aes(x = Tiempo, y = Conc, shape = Phase, group = Group)) +
-  geom_vline(xintercept = c(0, 6, 12, 18, 24, 30), linetype = 'dashed', color = 'gray') +
-  geom_point(size = 1.8) + theme_bw() + geom_smooth(method = 'loess', color = 'black', lwd = 0.5) +
-  geom_errorbar(aes(ymin = Conc - SD, ymax = Conc + SD), width = 0.01) +
-  scale_x_continuous(breaks = seq(0, 30, 3), limits = c(0, 30)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        axis.text.x = element_text(color = "black"), axis.text.y = element_text(color = "black")) +
-  scale_color_manual(values = c("black", "red")) +
-  labs(y = expression(paste('Conc. (mg k', g^{-1}, ')')), x = 'Time (h)') +
-  theme(text = element_text(size = 9), legend.position = "none")
-if (PDF) dev.off()
+p <- ggplot(data = C, aes(x = Tiempo, y = Conc, shape = Phase, group = Group)) +
+        geom_vline(xintercept = c(0, 6, 12, 18, 24, 30), linetype = 'dashed', color = 'gray') +
+        theme_bw() + 
+        geom_smooth(method = 'loess', color = 'black', lwd = 0.5, span = 1, se = FALSE) +
+        geom_errorbar(aes(ymin = Conc - SD, ymax = Conc + SD), width = 0.5) +
+        scale_x_continuous(breaks = seq(0, 30, 3), limits = c(-0, 30.3)) +
+        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+              axis.text.x = element_text(color = "black"), axis.text.y = element_text(color = "black")) +
+        scale_color_manual(values = c("black", "red")) +
+        labs(y = expression(paste('Conc. (mg k', g^{-1}, ')')), x = 'Tiempo (h)') +
+        geom_point(size = 1.8, color = 'black', fill = 'white') +
+        scale_shape_manual(values = c(15, 22)) +
+        theme(legend.position = "none")#, text = element_text(size = 9))
+p
+  if (PDF) dev.off()
 
 
-
+cyclesPlot(trans = C)
 
 
 

@@ -4,7 +4,7 @@
 
 # @book{USGS2010-2020, author = {{U. S. Geological Survey}}, year = {2010-2020}, 
 # title = {Mineral commodity summaries 2010-2020}}
-
+library(ggplot2)
 
 #  World Production from mineral, in metric tons 
 WPM <- data.frame(year = 2009:2017, 
@@ -12,8 +12,8 @@ WPM <- data.frame(year = 2009:2017,
                          62950, 65377, 82478, 107322) * 0.46457)
 
 #  World Production, in metric tons (Excluding US)
-WPMR <- data.frame(year = 2009:2019, 
-                   Li = c(28.1, 34.1, 37, 35, 34, 31.7, 35, 38, 69, 95, 77)*1e3)
+WPMR <- data.frame(year = 2003:2019, 
+                   Li = c(16.6, 21.7, 22.1, 24.5, 25, 26.9, 28.1, 34.1, 37, 35, 34, 31.7, 35, 38, 69, 95, 77)*1e3)
 
 #  World Compsumtion, in metric tons 
 WCMRM <- data.frame(year = 2013:2019, 
@@ -28,21 +28,21 @@ WCaP <- data.frame(year = rep(2009:2019, 3),
                               c(0, 0, 0, 0, 30, 31, 33.3, 36.6, 39.7, 49.1, 57.7)))
 
 p <- ggplot(WCaP, aes(x = year, y = Values, fill = tag, color = tag)) +
-  scale_x_continuous('Año', limits = c(2008.5, 2019.5), breaks = 2009:2019) +
-  scale_y_continuous('Porcentaje de uso', limits = c(0, 100), breaks = seq(0, 100, 25)) +
+  scale_x_continuous('Año', limits = c(2008.5, 2019.5), breaks = 2009:2019, expand = c(0, 0)) +
+  scale_y_continuous('Porcentaje de uso', limits = c(0, 100), breaks = seq(0, 100, 25), expand = c(0, 0.05)) +
   geom_line() + labs(fill = 'Mercado') +
   scale_fill_brewer(palette = 'Greys', direction = -1) + theme_bw() + theme(legend.position = 'none')
 #Baterias, cerámicos y vidrio, lubricantes, otros, síntesis de polímeros, polvos fundentes, tratamiento de aire
-pdf('uses.pdf', width = 7*1.5, height = 3*1.5)
+#pdf('uses.pdf', width = 7*1.5, height = 3*1.5)
 print(p)
-dev.off()
+#dev.off()
 
 
 # Global end-use markets
 GEUM <- data.frame(market = rep(c('Baterias', 'Ceramicos y vidrio', 'Lubricantes', 
                                   'Polímeros', 'Polvos fundentes', 
-                                  'Tratamiento de aire', 'Otros'), 9),
-                   year = rep(c(2019:2011), each = 7),
+                                  'Tratamiento de aire', 'Otros'), 17),
+                   year = rep(c(2019:2003), each = 7), #Cut required between 2011 and 2010 data.
                    percentage = c(65, 18, 5, 3, 3, 1, 5,
                                   56, 23, 6, 4, 3, 2, 6,
                                   46, 27, 7, 5, 4, 2, 9,
@@ -51,17 +51,41 @@ GEUM <- data.frame(market = rep(c('Baterias', 'Ceramicos y vidrio', 'Lubricantes
                                   31, 35, 8, 5, 6, 5, 10,
                                   29, 35, 9, 5, 6, 5, 11,
                                   22, 30, 11, 3, 4, 4, 25,
-                                  27, 29, 12, 3, 5, 4, 20))
+                                  27, 29, 12, 3, 5, 4, 20,
+                                  27, 29, 23, 3, 5, 4, 20,#2010 SQM
+                                  26, 15, 13, 5, 3, 6, 32,#2009 SQM
+                                  27, 17, 12, 4, 3, 6, 31,#2008 SQM
+                                  25, 18, 12, 4, 3, 6, 29,#2007 SQM
+                                  20, 21, 16, 4, 0, 8, 31,#2006 SQM
+                                  20, 21, 17, 4, 0, 8, 30,#2005 SQM
+                                  19, 21, 16, 4, 0, 8, 32,#2004 SQM
+                                  12, 21, 17, 5, 0, 11, 34))#2003 SQM
+
+yminRel <- ymaxRel <- yminAbs <- ymaxAbs <- totProd <- vector()
+for (i in 0:16) {
+  totProd <- c(totProd, GEUM$percentage[(i*7):(i*7 + 7)] * WPMR[(17 - i), 2] / 100)
+  for (j in 1:7) {
+    if (j == 1) {
+      yminRel <- c(yminRel, 0)
+      yminAbs <- c(yminAbs, 0)
+    } else {
+      yminRel <- c(yminRel, 0)
+      yminAbs <- c(yminAbs, 0)
+    }
+  }
+}
+GEUM$yminRel <- ymin
+GEUM$ymaxRel <- ymax
 
 p <- ggplot(GEUM, aes(x = year, y = percentage, fill = market)) +
-  scale_x_continuous('Año', limits = c(2010.5, 2019.5), breaks = 2011:2019) +
-  scale_y_continuous('Porcentaje de uso', limits = c(0, 65), breaks = seq(0, 60, 20)) +
-  geom_bar(colour="black", position = "dodge", stat = "identity") + labs(fill = 'Mercado') +
+  scale_x_continuous('Año', limits = c(2002.35, 2019.65), breaks = 2003:2019, expand = c(0,0)) +
+  scale_y_continuous('Porcentaje de uso', limits = c(0, 70), breaks = seq(0, 60, 20), expand = c(0,0)) +
+  geom_area(colour="black", position = "dodge", stat = "identity") + labs(fill = 'Mercado') +
   scale_fill_brewer(palette = 'Greys', direction = -1) + theme_bw() + theme(legend.position = 'none')
 #Baterias, cerámicos y vidrio, lubricantes, otros, síntesis de polímeros, polvos fundentes, tratamiento de aire
-pdf('uses.pdf', width = 6*1.5, height = 3*1.5)
+#pdf('uses.pdf', width = 6*1.5, height = 3*1.5)
 print(p)
-dev.off()
+#dev.off()
 
 
 # World reserves by country 2019, in metric tons:

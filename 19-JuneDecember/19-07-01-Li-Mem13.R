@@ -1,7 +1,6 @@
 library(ggplot2)
-library(ggformula)
-library(transMem)
-PDF <- TRUE
+library(transmem)
+PDF <- FALSE
 #-----STOCK SOLUTIONS--------------------------------------------------------
 StockLi.200 <- 129.5 * 0.187872 * 0.99 / 0.1200962
 StockLi.5_5   <- StockLi.200 * 1.2621 / 50.0062
@@ -111,11 +110,20 @@ frac <- vector()
 for (i in 1:7) frac <- c(frac, TransFrac[[i]]$Fraction[7:12])
 velData <- data.frame(Agit. = as.factor(rep(vel, each = 6)), Phi_strip = frac, Time = rep(AliTimes[[1]], 7))
 
-p <- ggplot(data = velData, aes(x = Time, y = Phi_strip, color = Agit., group = Agit.)) +
-       theme_bw() + geom_point(size = 3, shape = 15)  + labs(y = expression(Phi), x = 'Time (h)') +
+p <- ggplot(data = velData, aes(x = Time, y = Phi_strip, shape = Agit., group = Agit.)) +
+       theme_bw()  + labs(y = expression(Phi), x = 'Time (h)') +
        theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
              axis.text.x = ggplot2::element_text(color = "black"),
-             axis.text.y = ggplot2::element_text(color = "black"))
+             axis.text.y = ggplot2::element_text(color = "black")) +
+  scale_shape_manual(values = c(15, 16, 17, 21, 22, 23, 24, 25)) + theme(legend.position = 'none') + ylim(-0.01, 0.9)
+p2 <- ggplot(data = velData, aes(x = Time, y = Phi_strip, shape = Agit., group = Agit.)) +
+  theme_bw()  + labs(y = expression(Phi), x = 'Tiempo (h)') +
+  theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+        axis.text.x = ggplot2::element_text(color = "black"),
+        axis.text.y = ggplot2::element_text(color = "black")) +
+  scale_shape_manual(values = c(15, 16, 17, 21, 22, 23, 24, 25)) + ylim(-0.01, 0.9) + geom_point()
+p2
+p
 
 gg_color_hue <- function(n) {
   hues = seq(15, 375, length = n + 1)
@@ -123,6 +131,7 @@ gg_color_hue <- function(n) {
 }
 
 cols = gg_color_hue(7)
+cols = rep('black', 7)
   e <- TransNLS[[1]]$eccen
 
   (p <- p + stat_function(fun = function(x) ((coefficients(TransNLS[[1]]$strip)[1] * x^e)
@@ -152,16 +161,20 @@ cols = gg_color_hue(7)
       stat_function(fun = function(x) ((coefficients(TransNLS[[7]]$strip)[1] * x^e)
                                        / (1 / coefficients(TransNLS[[7]]$strip)[2] + x^e)),
                     color = cols[7], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
-                    xlim = c(0, 5), size = 0.4))
+                    xlim = c(0, 5), size = 0.4) + geom_point(size = 3, color = 'black', fill = 'white'))
+
+
+
+
 
 #################################################
   #######################################################################
-  frac <- vector()
-  for (i in c(2, 4, 5, 7)) frac <- c(frac, TransFrac[[i]]$Fraction[7:12])
-  velData <- data.frame(Agit. = as.factor(rep(vel[c(2, 4, 5, 7)], each = 6)),
-                        Phi_strip = frac, Time = rep(AliTimes[[1]], 4))
+  fracP <- vector()
+  for (i in c(2, 4, 5, 7)) fracP <- c(fracP, TransFrac[[i]]$Fraction[7:12])
+  velData1 <- data.frame(Agit. = as.factor(rep(vel[c(2, 4, 5, 7)], each = 6)),
+                        Phi_strip = fracP, Time = rep(AliTimes[[1]], 4))
 
-  p <- ggplot(data = velData, aes(x = Time, y = Phi_strip, color = Agit., group = Agit.)) +
+  p1 <- ggplot(data = velData1, aes(x = Time, y = Phi_strip, color = Agit., group = Agit.)) +
     theme_bw() + geom_point(size = 3, shape = 15)  + labs(y = expression(Phi), x = 'Time (h)') +
     theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
           axis.text.x = ggplot2::element_text(color = "black"),
@@ -175,7 +188,7 @@ cols = gg_color_hue(7)
   cols = gg_color_hue(4)
   e <- TransNLS[[1]]$eccen
 
-  (p <- p + stat_function(fun = function(x) ((coefficients(TransNLS[[2]]$strip)[1] * x^e)
+  (p1 <- p1 + stat_function(fun = function(x) ((coefficients(TransNLS[[2]]$strip)[1] * x^e)
                                        / (1 / coefficients(TransNLS[[2]]$strip)[2] + x^e)),
                     color = cols[1], # ggsci::pal_npg("nrc", alpha = 0.7)(2)[1],
                     xlim = c(0, 5), size = 0.4) +
@@ -194,16 +207,77 @@ cols = gg_color_hue(7)
   ####################################################3
 consolid <- data.frame(Agit = c(360, 440, 530, 591, 680, 740, 920),
                        phiMax = velData[which(velData$Time == 5), 2])
-  (q <- ggplot(data = consolid,
-              aes(x = Agit, y = phiMax)) + geom_point(size = 3) +
-      geom_errorbar(aes(ymin = phiMax - 0.02, ymax = 0.02 + phiMax), width = 8) +
-      geom_errorbarh(xmin = consolid$Agit - 30, xmax = 30 + consolid$Agit) +
-      labs(y = expression(Phi[5*h]), x = 'Rapidez de agitación (RPM)') +
-      theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
-            axis.text.x = ggplot2::element_text(color = "black"),
-            axis.text.y = ggplot2::element_text(color = "black")) + theme_bw())
+
+(q <- ggplot(data = consolid,
+             aes(x = Agit, y = phiMax)) + geom_point(size = 3, shape = c(15, 15, 17, 15, 15, 17, 15)) +
+    #      geom_errorbar(aes(ymin = phiMax - 0.02, ymax = 0.02 + phiMax), width = 8) +
+    #      geom_errorbarh(xmin = consolid$Agit - 30, xmax = 30 + consolid$Agit) +
+    labs(y = expression(Phi[5*h]), x = 'Rapidez de agitación (RPM)') +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          axis.text.x = element_text(color = "black"),
+          axis.text.y = element_text(color = "black")) + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          axis.text.x = element_text(color = "black"),
+          axis.text.y = element_text(color = "black")) +
+    scale_y_continuous(limits=c(-5, 10)) + scale_x_continuous(limits=c(100, 3000)) +
+    coord_cartesian(xlim = c(350, 1000), ylim = c(-0.01, 0.9)))
 
 
+#q + geom_smooth(method = 'lm') 
+#q +      geom_smooth(fullrange=TRUE, data = consolid[-6, ], method = 'lm',  aes(x = Agit, y = phiMax))
+q <- q + geom_smooth(data = consolid[-c(3, 6), ], method = 'lm', 
+                     fullrange=TRUE, color = 'black', size = 0.4, aes(x = Agit, y = phiMax))
+
+library(MASS) 
+q + geom_smooth(data = consolid[-6, ], method = function(formula, data, weights = weight) rlm(formula,
+                                                                       data,
+                                                                       weights=weight,
+                                                                       method="MM"), 
+                fullrange=TRUE, color = 'black', size = 0.4, aes(x = Agit, y = phiMax))
+
+model1 <- lm(phiMax ~ Agit, data = consolid)
+model2 <- lm(phiMax ~ Agit, data = consolid[-6, ])
+model3 <- lm(phiMax ~ Agit, data = consolid[-c(3, 6), ])
+model4 <- rlm(phiMax ~ Agit, data = consolid[-6, ])
+
+summary(model1)
+summary(model2)
+summary(model3)
+summary(model4)
+
+plot(lm(phiMax ~ Agit, data = consolid)$residuals); abline(0, 0, lty = 2)
+consolid$res1 <- model1$residuals
+consolid$res2 <- c(model2$residuals[1:5], NA, model2$residuals[6])
+consolid$res3 <- c(model3$residuals[1:2], NA, model3$residuals[3:4], NA, model3$residuals[5])
+consolid$index <- 1:7
+
+(qq1 <- ggplot(data = consolid,
+               aes(x = Agit, y = res1)) + geom_point(size = 3) +
+    labs(y = expression(Phi[5*h]), x = 'Rapidez de agitación (RPM)') +
+    theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+          axis.text.x = ggplot2::element_text(color = "black"),
+          axis.text.y = ggplot2::element_text(color = "black")) + theme_bw()+
+    theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+          axis.text.x = ggplot2::element_text(color = "black"),
+          axis.text.y = ggplot2::element_text(color = "black")) + geom_smooth(method = 'lm') )
+(qq2 <- ggplot(data = consolid,
+               aes(x = Agit, y = res2)) + geom_point(size = 3) +
+    labs(y = expression(Phi[5*h]), x = 'Rapidez de agitación (RPM)') +
+    theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+          axis.text.x = ggplot2::element_text(color = "black"),
+          axis.text.y = ggplot2::element_text(color = "black")) + theme_bw()+
+    theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+          axis.text.x = ggplot2::element_text(color = "black"),
+          axis.text.y = ggplot2::element_text(color = "black")) + geom_smooth(method = 'lm') )
+(qq3 <- ggplot(data = consolid,
+               aes(x = Agit, y = res3)) + geom_point(size = 3) +
+    labs(y = expression(Phi[5*h]), x = 'Rapidez de agitación (RPM)') +
+    theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+          axis.text.x = ggplot2::element_text(color = "black"),
+          axis.text.y = ggplot2::element_text(color = "black")) + theme_bw()+
+    theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
+          axis.text.x = ggplot2::element_text(color = "black"),
+          axis.text.y = ggplot2::element_text(color = "black")) + geom_smooth(method = 'lm') )
 
 if (PDF) dev.off()
 ###################################################
@@ -221,7 +295,7 @@ if (F) {
                           Phi_strip = frac, Time = rep(AliTimes[[1]], 7))
 
     p <- ggplot(data = velData, aes(x = Time, y = Phi_strip, color = Grosor, group = Grosor)) +
-        theme_bw() + geom_point(size = 3, shape = 15)  + labs(y = expression(Phi), x = 'Time (h)') +
+        theme_bw() + geom_point(size = 3, shape = 15)  + labs(y = expression(Phi), x = 'Tiempo (h)') +
         theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(),
               axis.text.x = ggplot2::element_text(color = "black"),
               axis.text.y = ggplot2::element_text(color = "black"))

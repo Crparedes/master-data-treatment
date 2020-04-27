@@ -70,3 +70,9 @@ for (i in 1:length(files)) {
   velo1[i, 6] <- max(robust)
 }
 vel2 <- velo1
+
+# Cargamos los datos y visualizamos las diez primeras filas
+data <- read.table("17-01-A-F", skip = 1, header = TRUE, sep = ',')
+head(data, n = 10)
+
+RPM(lum = data$V4, n = 50, m = 5, plot = TRUE)

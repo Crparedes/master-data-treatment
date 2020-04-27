@@ -25,9 +25,9 @@ CalCurves <- list(
   Potassium = data.frame(Conc = c(0, 0.1161, 0.3845, 0.7267, 0.9607, 1.2154) * StockK.10 /
                            c(6, 6.0537, 6.0643, 6.0318, 6.0002, 6.0493),
                          Signal = c(0, 0.109, 0.333, 0.593, 0.752, 0.888)),
-  Magnesium = data.frame(Conc = c(0, 0.6181, 1.2064, 1.7995, 2.4384, 3.0945) * StockMg.2 /
-                           c(6, 6.0880, 6.1408, 6.0009, 6.1014, 6.0274),
-                         Signal = c(0, 0.091, 0.171, 0.250, 0.325, 0.398)),
+  Magnesium = data.frame(Conc = c(0, 0.6181, 1.2064, 1.7995, 2.4384) * StockMg.2 /#, 3.0945) * StockMg.2 /
+                           c(6, 6.0880, 6.1408, 6.0009, 6.1014),#, 6.0274),
+                         Signal = c(0, 0.091, 0.171, 0.250, 0.325)),#, 0.398)),
   Calcium   = data.frame(Conc = c(0, 0.6213, 1.2149, 1.8130, 2.4250, 3.1000) * StockCa.10 /
                            c(6, 6.0524, 6.0340, 6.0274, 6.0292, 6.1189),
                          Signal = c(0, 0.060, 0.119, 0.176, 0.237, 0.292))
@@ -35,11 +35,12 @@ CalCurves <- list(
 ## for a cleaner workspace
 #rm(list = ls()[grep("Stock", ls())])
 CalModels <- list()
-order = c(1, 2, 2, 2, 2)
+order = c(1, 2, 2, 1, 1)
 for (i in 1:5) CalModels[[i]] <- calibCurve(curve = CalCurves[[i]], order = order[i], plot = TRUE)
 names(CalModels) <- names(CalCurves)
 summary(CalModels$Lithium)
-
+summary(CalModels$Magnesium)
+summary(CalModels$Calcium)
 #-----SEAWATER DILUTIONS AND MEASUREMENTS--------------------------------------
 SWN.dil.100  <- 12.0202 / 0.1284
 SWN.dil.400  <- SWN.dil.100 * 12.0035 / 3.0535

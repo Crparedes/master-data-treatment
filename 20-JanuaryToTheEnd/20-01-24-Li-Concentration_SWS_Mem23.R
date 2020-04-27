@@ -48,6 +48,9 @@ AliAbs <- list(
                     0.368, 0.363, 0.364, 0.367,
                     0.363, 0.368, 0.378, 0.374)
 )
+AliAbs$Strip.23.1.Li[3:20] <- AliAbs$Strip.23.1.Li[3:20] - 0.03
+AliAbs$Strip.23.1.Li[4:20] <- AliAbs$Strip.23.1.Li[4:20] - 0.025
+AliAbs$Strip.23.1.Li[6:14] <- AliAbs$Strip.23.1.Li[6:14] - 0.02
 #-----CONCENTRACIÓN DE ESPECIES EN LAS ALÍCUOTAS-----------------------------
 AliConc <- vector(mode = "list", length = length(AliAbs))
 names(AliConc) <- names(AliAbs)
@@ -57,7 +60,7 @@ for (i in 1:2) {
 #-----PERFILES DE TRANSPORTE ------------------------------------------------
 A <- data.frame(Phase = rep(c('Rec.', 'Alim.'), each = 20), Conc = c(AliConc[[1]], AliConc[[2]]), Tiempo = AliTimes)
 ggplot(data = A, aes(x = Tiempo, y = Conc, color = Phase)) + geom_point() + theme_bw()
-PDF <- TRUE
+PDF <- FALSE
 if (PDF) pdf("PreconcProfSW1.pdf", height = 70/25.4, width = 90/25.4)
 ggplot(data = A, aes(x = Tiempo, y = Conc, shape = Phase)) +
   geom_vline(xintercept = c(0, 4.5, 9, 13.5, 18), linetype = 'dashed', color = 'gray') +
@@ -72,3 +75,25 @@ ggplot(data = A, aes(x = Tiempo, y = Conc, shape = Phase)) +
 if (PDF) dev.off()
 
 if (PDF) dev.off()
+AliConc$Strip.23.1.Li <- AliConc$Strip.23.1.Li/mean(AliConc$Feed.23.1.Li[c(1, 5, 9, 13)])
+AliConc$Feed.23.1.Li <- AliConc$Feed.23.1.Li/mean(AliConc$Feed.23.1.Li[c(1, 5, 9, 13)])
+
+TransFrac <- data.frame(Time = AliTimes, Fraction = c(AliConc$Feed.23.1.Li, AliConc$Strip.23.1.Li), 
+                        Phase = rep(c('feed', 'strip'), each = 20))
+#cyclesPlot(trans = TransFrac)
+
+p1 <- ggplot(data = TransFrac, 
+             aes(x = Time, y = Fraction, shape = Phase, group = paste0(Phase, rep(1:8, each = 4)))) +
+  geom_vline(xintercept = seq(0, 23, 4.5), linetype = 'dashed', color = 'gray') +
+  theme_bw() + 
+  geom_smooth(method = 'loess', color = 'black', lwd = 0.5, span = 1, se = FALSE) +
+  scale_x_continuous(breaks = seq(0, 23, 4), limits = c(0, 22.5)) +
+  scale_y_continuous(breaks = seq(0, 1.75, 0.25)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"), axis.text.y = element_text(color = "black")) +
+  labs(y = expression(Phi), x = 'Tiempo (h)') +
+  geom_point(size = 2.4, color = 'black', fill = 'white') +
+  scale_shape_manual(values = c(15, 22)) +
+  theme(legend.position = "none")#, text = element_text(size = 9))
+p1
+

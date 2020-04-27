@@ -76,27 +76,29 @@ MagnesiumESCC <- signal2conc(signal = c(0.240, 0.239), model = CalModels$Magnesi
 CalciumESCC   <- signal2conc(signal = c(0.225, 0.059, 0.225, 0.057), model = CalModels$Calcium,
                              dilution = c(SWN.dil.100, SWN.dil.400, SWS.dil.100, SWS.dil.400))
 
+a <- b <- vector()
 cat(paste0('Lithium concentration in SWN by ESCC: ', round(mean(LithiumESCC[1:3]), 0), 
            ' +/- ', round(sd(LithiumESCC[1:3]), 0), ' ug/kg \n',
-           'Lithium concentration in SWN by SPSA: ', round(mean(LithiumSPSA2[1:3]), 0), 
+           'Lithium concentration in SWN by SPSA: ', a[1] <- round(mean(LithiumSPSA2[1:3]), 0), 
            ' +/- ', round(sd(LithiumSPSA2[1:3]), 0), ' ug/kg \n', 
            'Lithium concentration in SWS by ESCC: ', round(mean(LithiumESCC[4:6]), 0), 
            ' +/- ', round(sd(LithiumESCC[4:6]), 0), ' ug/kg \n',
-           'Lithium concentration in SWS by SPSA: ', round(mean(LithiumSPSA2[4:6]), 0), 
+           'Lithium concentration in SWS by SPSA: ', b[1] <- round(mean(LithiumSPSA2[4:6]), 0), 
            ' +/- ', round(sd(LithiumSPSA2[4:6]), 0), ' ug/kg \n\n',
-           'Sodium concentration in SWN by ESCC: ', round(SodiumESCC[1], 0), ' mg/kg \n', 
-           'Sodium concentration in SWS by ESCC: ', round(SodiumESCC[2], 0), ' mg/kg \n\n', 
-           'Potassium concentration in SWN by ESCC: ', round(mean(PotassiumESCC[1:2]), 0), 
+           'Sodium concentration in SWN by ESCC: ', a[2] <- round(SodiumESCC[1], 0), ' mg/kg \n', 
+           'Sodium concentration in SWS by ESCC: ', b[2] <- round(SodiumESCC[2], 0), ' mg/kg \n\n', 
+           'Potassium concentration in SWN by ESCC: ', a[3] <- round(mean(PotassiumESCC[1:2]), 0), 
            ' +/- ', round(sd(PotassiumESCC[1:2]), 0), ' mg/kg \n', 
-           'Potassium concentration in SWS by ESCC: ', round(mean(PotassiumESCC[3:4]), 0), 
+           'Potassium concentration in SWS by ESCC: ', b[3] <- round(mean(PotassiumESCC[3:4]), 0), 
            ' +/- ', round(sd(PotassiumESCC[3:4]), 0), ' mg/kg \n\n',
-           'Magnesium concentration in SWN by ESCC: ', round(MagnesiumESCC[1], 0), ' mg/kg \n', 
-           'Magnesium concentration in SWS by ESCC: ', round(MagnesiumESCC[2], 0), ' mg/kg \n\n', 
-           'Calcium concentration in SWN by ESCC: ', round(mean(CalciumESCC[1:2]), 0), 
+           'Magnesium concentration in SWN by ESCC: ', a[4] <- round(MagnesiumESCC[1], 0), ' mg/kg \n', 
+           'Magnesium concentration in SWS by ESCC: ', b[4] <- round(MagnesiumESCC[2], 0), ' mg/kg \n\n', 
+           'Calcium concentration in SWN by ESCC: ', a[5] <- round(mean(CalciumESCC[1:2]), 0), 
            ' +/- ', round(sd(CalciumESCC[1:2]), 0), ' mg/kg \n', 
-           'Calcium concentration in SWS by ESCC: ', round(mean(CalciumESCC[3:4]), 0), 
+           'Calcium concentration in SWS by ESCC: ', b[5] <- round(mean(CalciumESCC[3:4]), 0), 
            ' +/- ', round(sd(CalciumESCC[3:4]), 0), ' mg/kg \n'))
 
 
 if (PDF) dev.off()
-6*40*.05
+
+t.test(x = a, y = b, paired = TRUE, alternative = 'less')

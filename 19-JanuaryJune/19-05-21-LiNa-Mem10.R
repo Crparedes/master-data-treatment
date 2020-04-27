@@ -189,13 +189,13 @@ yy <- c(0.002275, 0.002012, 0.002078, 0.001305, 0.001159, 0.0007701, 0.01818, 0.
 t.test(x = xx, y = yy, paired = TRUE)
 
 #-----PERFILES DE TRANSPORTE ------------------------------------------------
-#pdf("Perfiles19-05-21-normal.pdf", height = 5, width = 10)
+pdf("Perfiles19-05-21-normal.pdf", height = 5, width = 10)
 for (i in 1:8) {
   eval(parse(text = paste0("transPlot(trans = TransFrac$M.10.", i, ".Li, trend = TransNLS$M.10.", i, ",
                              secondary = TransFrac$M.10.", i, ".Na, xlim = c(0, 25), ylim = c(-0.05, 1.15),
                              ybreaks = c(0, 0.25, 0.50, 0.75, 1, 1.1))")))
 }
-#dev.off()
+dev.off()
 ###########################################################################
 #-----REGRESIONES MULTIPARAMÉTRICAS (PLANARES)-----------------------------
 #pdf("calibrationplanes19-05-19",  height = 5, width = 10)
@@ -203,21 +203,24 @@ CalCurves$Lithium.Plane.1 <- rbind(CalCurves$Lithium.1, CalCurves$Lithium.2, Cal
 CalCurves$Lithium.Plane.2 <- rbind(CalCurves$Lithium.4, CalCurves$Lithium.5)
 planedata <- rbind(CalCurves$Lithium.1, CalCurves$Lithium.2, CalCurves$Lithium.3,
                    CalCurves$Lithium.4, CalCurves$Lithium.5)
+
+
 summary(calibPlane(planedata)$model)
 
 
 CalModels$Lithium.Plane.1 <- calibPlane(plane = CalCurves$Lithium.Plane.1)
 summary(CalModels$Lithium.Plane.1$model)
 CalModels$Lithium.Plane.2 <- calibPlane(plane = CalCurves$Lithium.Plane.2)
+summary(CalModels$Lithium.Plane.2$model)
 #dev.off()
-
+TransFracCP<-TransFrac
 #pdf("Perfiles19-05-21-corr.pdf", height = 5, width = 10)
 #-----NUEVOS PERFILES DE TRANSPORTE----------------------------------------
-#pdf("Perfiles19-05-21-planar.pdf", height = 5, width = 10)
+pdf("Perfiles19-05-21-planar.pdf", height = 5, width = 10)
 for (i in 1:7) {
   eval(parse(text = paste0("AliConc$Strip.10.", i, ".pl.Li <- signal2conc(signal = AliAbs$Strip.10.", i, ".Li,
                               model = CalModels$Lithium.Plane.1, planar = TRUE,
-                              Conc.S = fixSecondary(metalConc = AliConc$Strip.10.", i, ".Na,
+                              Conc.S = fixSecondary(conc = AliConc$Strip.10.", i, ".Na,
                                                     time = AliTimes$T.10.", i, "[c(1, 3, 5, 7, 9, 11)],
                                                     compTime = AliTimes$T.10.", i, ", order = 2))")))
   eval(parse(text = paste0("TransFrac$M.10.", i, ".pl.Li <- conc2frac(feed = AliConc$Feed.10.", i, ".Li,
@@ -227,7 +230,7 @@ for (i in 1:7) {
                               secondary = TransFrac$M.10.", i, ".Na, xlim = c(0, 25), ylim = c(-0.05, 1.1),
                               ybreaks = c(0, 0.25, 0.50, 0.75, 1, 1.1))")))
 }
-#dev.off()
+dev.off()
 
 #-----PRUEBAS T DE IGUALDAD DE MEDIAS--------------------------------------
 if(TRUE){

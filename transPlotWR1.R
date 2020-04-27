@@ -138,15 +138,15 @@ transPlotWR <- function(trans, trend = NULL, secondary = NULL, tertiary = NULL,
     }
   } else {
     mtrans <- transmem:::transColapse(trans = trans)
-    e <- trend[[1]]$eccen
+    eccen <- e <- trend[[1]]$eccen
     mtrend <- list(transTrend(trans = mtrans, model = 'paredes',
                               eccen = e))
-
+    
     if (bw) colbw <- c("black", "black") else colbw <- c("red", "black")
 
     p <- ggplot(data = mtrans, aes(x = Time, y = Fraction, group = Phase)) +
       theme_bw() + geom_point(size = size, shape = 15, aes(color = Phase)) +
-      labs(y = expression(Phi), x = 'Time (h)') +
+      labs(y = ylab, x = xlab) +
       theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
             axis.text.x = element_text(color = "black"),

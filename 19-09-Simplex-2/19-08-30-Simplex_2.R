@@ -3,6 +3,14 @@ plotALL <- function() {
   plotSimplex3D(simplex, sel.dim = 1:3)
   plotSimplex3D(simplex, sel.dim = c(1, 2, 4))
 }
+plotALL2d <- function() {
+  plot(simplex, sel.dim = 1:2)
+  plot(simplex, sel.dim = c(1, 3))
+  plot(simplex, sel.dim = c(1, 4))
+  plot(simplex, sel.dim = c(2, 3))
+  plot(simplex, sel.dim = c(2, 4))
+  plot(simplex, sel.dim = c(3, 4))
+}
 library(transmem)
 library(labsimplex)
 
@@ -16,58 +24,59 @@ adjustVertex(simplex = simplex, newcoords = list(Vertex.5=c(NA, 2.75, NA, 0.04))
 plotALL()
 
 
-source(file = "19-09-10-LiNa-Mem16CLEAN.R")
+source(file = "19-09-Simplex-2/19-09-10-LiNa-Mem16CLEAN.R")
 Mresp <- rbind(colMeans(Parameters[1:2, ]), Parameters[3, ], Parameters[4, ],
                colMeans(Parameters[5:6, ]), colMeans(Parameters[7:8, ]))
 generateVertex(simplex = simplex, qflv = Mresp[, 3], crit = "max", algor = "variable", overwrite = TRUE)
 generateVertex(simplex = smplx, qflv = (Mresp[, 1] * Mresp[, 3]), crit = "max", algor = "variable", overwrite = TRUE)
-extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
+#extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
 plotALL()
 
 #generateVertex(simplex = simplex, qflv = 0.3, crit = "max", algor = "variable", overwrite = FALSE)
 #extrMolRat(mass = 65, ratio = 3.43)
 
 generateVertex(simplex = simplex, qflv = 0, crit = "max", algor = "variable", overwrite = TRUE)
-extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
+#extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
 plotALL()
 
 #source(file = "19-09-20-LiNa-Mem16_6.R")
 
-source(file = "19-09-20-LiNa-Mem16_7.R")
+source(file = "19-09-Simplex-2/19-09-20-LiNa-Mem16_7.R")
 Resp <- colMeans(Parameters)[3]
 generateVertex(simplex = simplex, qflv = Resp, crit = "max", algor = "variable", overwrite = TRUE)
-extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
+#extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
 plotALL()
 
-source(file = "19-09-22-LiNa-Mem16_8.R")
+source(file = "19-09-Simplex-2/19-09-22-LiNa-Mem16_8.R")
 Resp <- colMeans(Parameters)[3]
 generateVertex(simplex = simplex, qflv = Resp, crit = "max", algor = "variable", overwrite = TRUE)
-extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
+#extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
 plotALL()
 
-source(file = "19-09-23-LiNa-Mem16_9.R")
+source(file = "19-09-Simplex-2/19-09-23-LiNa-Mem16_9.R")
 Resp <- colMeans(Parameters)[3]
 generateVertex(simplex = simplex, qflv = Resp, crit = "max", algor = "variable", overwrite = TRUE)
-extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
+#extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
 plotALL()
 
-source(file = "19-09-24-LiNa-Mem16_10.R")
+source(file = "19-09-Simplex-2/19-09-24-LiNa-Mem16_10.R")
 Resp <- Parameters[1, 3]
 generateVertex(simplex = simplex, qflv = Resp, crit = "max", algor = "variable", overwrite = TRUE)
-extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
+#extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
 plotALL()
 
-source(file = "19-09-25-LiNa-Mem16_11.R")
+source(file = "19-09-Simplex-2/19-09-25-LiNa-Mem16_11.R")
 Resp <- colMeans(Parameters)[3]
 generateVertex(simplex = simplex, qflv = Resp, crit = "max", algor = "variable", overwrite = TRUE)
-extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
+#extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
 plotALL()
 
 source(file = "19-09-26-LiNa-Mem16_12.R")
 Resp <- colMeans(Parameters)[3]
 generateVertex(simplex = simplex, qflv = Resp, crit = "max", algor = "variable", overwrite = TRUE)
-extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
+#extrMolRat(mass = simplex$coords[nrow(simplex$coords), 1], ratio = simplex$coords[nrow(simplex$coords), 2])
 plotALL()
+plotALL2d()
 
 plotSimplexResponse(simplex, pch = 2)
 

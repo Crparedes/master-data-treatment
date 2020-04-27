@@ -11,14 +11,10 @@ find_peaks <- function (x, m = 3) {
   pks
 }
 
-RPM <- function (lum, fps = 240, m = 3, n = 50, plot = FALSE, name = NULL) {
+RPM <- function (lum, fps = 240, m = 3, n = 50, plot = FALSE) {
   peaks <- find_peaks(x = lum, m = m)  
   if (plot) {
-    if (missing(name)) {
-      plot(lum, xlim = c(1, n), type = 'o', xlab = 'Fotograma', ylab = 'Luminancia (lumas)')
-    } else {
-      plot(lum, xlim = c(1, n), type = 'o', main = name, xlab = 'Fotograma', ylab = 'Luminancia (lumas)')
-    }
+    plot(lum, xlim = c(1, n), type = 'o', xlab = 'Fotograma', ylab = 'Luminancia (lumas)')
     points(x = peaks, y = lum[peaks], col = 2, pch = 8)
   }
   rev = length(peaks) / 2
@@ -26,14 +22,24 @@ RPM <- function (lum, fps = 240, m = 3, n = 50, plot = FALSE, name = NULL) {
   return(rev / time)
 }
 
-RobustRPM <- function (lum, frac = 10, fps = 240, n = 50, m = 3, plot = FALSE) {
+RobustRPM <- function (lum, fps = 240, n = 50, frac = 10, m = 3, plot = TRUE) {
   ngr <- trunc(length(lum) / frac)
-  values <- vector()
+  X <- vector()
   for (i in 1:frac) {
-    values <- c(values, RPM(lum = lum[((i - 1) * ngr + 1):(i * ngr)], 
-                fps = fps, n = n, m = m, plot = plot))
+    lumi <- lum[((i - 1) * ngr + 1):(i * ngr)]
+    peaks <- find_peaks(x = lumi, m = m)
+    rev = length(peaks) / 2
+    time = length(lumi) / 240 / 60
+    
+    X <- c(X, rev / time)
   }
-  return(values)
+  
+  if (plot) {
+    plot(lumi, xlim = c(1, n), type = 'o', xlab = 'Fotograma', ylab = 'Luminancia (lumas)')
+    points(x = peaks, y = lumi[peaks], col = 2, pch = 8)
+  }
+  cat('Rapidez de rotacion:', trunc(mean(X), 0), '+-', trunc(2 * sd(X), 0), 'RPM')
+  #return(X)
 }
 
 ###########################################
@@ -182,3 +188,9 @@ RPM(data$V4, n = 50, m = 5, plot = TRUE)
 data <- read.table(file = "Vel6/C1V6L-4", skip = 2, sep = ',')
 RPM(data$V4, n = 50, m = 3, plot = TRUE)
 dev.off()
+
+# Cargamos los datos y visualizamos las diez primeras filas
+data <- read.table("Vel6/C1V6R-4", skip = 1, header = TRUE, sep = ',')
+head(data, n = 10)
+
+RobustRPM(lum = data$luma, n = 50, m = 3, plot = TRUE)

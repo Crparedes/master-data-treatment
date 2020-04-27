@@ -90,12 +90,12 @@ for (i in 1:(length(AliConc)/4)) {
                                   dilution = dilutions[[2*i]])
   #Feed lithium
   AliConc[[4*i-3]] <- signal2conc(signal = AliAbs[[4*i-3]], model = CalModels$Lithium.P, planar = TRUE,
-                                  Conc.S = fixSecondary(metalConc = AliConc[[4*i-1]],
+                                  Conc.S = fixSecondary(conc = AliConc[[4*i-1]],
                                                         time = AliTimes[[i]][ts], compTime = AliTimes[[i]],
                                                         order = 2))
   #Strip litium
   AliConc[[4*i-2]] <- signal2conc(signal = AliAbs[[4*i-2]], model = CalModels$Lithium.P, planar = TRUE,
-                                  Conc.S = fixSecondary(metalConc = AliConc[[4*i]],
+                                  Conc.S = fixSecondary(conc = AliConc[[4*i]],
                                                         time = AliTimes[[i]][ts], compTime = AliTimes[[i]],
                                                         order = 2))
 }
@@ -114,7 +114,7 @@ for (i in 1:(length(TransFrac)/2)) {
 #-----FACTORES DE SEPARACIÓN-------------------------------------------------
 sepFactor <- vector(mode = "list", length = length(TransFrac)/2)
 for (i in 1:length(sepFactor)) {
-  sec <- fixSecondary(metalConc = AliConc[[4*i]], time = AliTimes[[i]][ts], compTime = AliTimes[[i]], order = 2)
+  sec <- fixSecondary(conc = AliConc[[4*i]], time = AliTimes[[i]][ts], compTime = AliTimes[[i]], order = 2)
   X <- data.frame(time = AliTimes[[i]],
                   factor = (AliConc[[i*4-2]]/sec) / (AliConc[[i*4-3]][1]/AliConc[[i*4-1]][1]))
   #X$factor[1] <- 1

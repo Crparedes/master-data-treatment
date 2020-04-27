@@ -175,22 +175,30 @@ p1 <- p1 + theme(text = element_text(size = 9)) + scale_x_continuous(breaks = 0:
 p1
 
 p2 <- multiPlotSP(trans = trans2, phase = 'Feed', trend = trend2, legend = FALSE,
-                  plot = FALSE, bw = FALSE, size = 2.8, shape = 16)
-p2 <- p2 + theme(text = element_text(size = 9)) + scale_x_continuous(breaks = 0:6, limits = c(0, 6.4)) +
+                  plot = FALSE, bw = TRUE, size = 2.8, shape = 18, xlab = 'Tiempo (h)', ylim = c(0, 1))
+p2 <- p2 + scale_x_continuous(breaks = 0:6, limits = c(0, 6.4)) + # theme(text = element_text(size = 9)) +
   annotate("segment", x = 6.3, xend = 6.3, y = 0.1, yend = 0.5, arrow = arrow(angle = 12)) +
-  geom_text(x = 6.5, y = 0.3, label = "Cycle", angle = 90, size = 3.1) +
+  geom_text(x = 6.5, y = 0.3, label = "Ciclo", angle = 90, size = 3.1) +
   scale_y_continuous(limits = c(0, 1))
 p2
+
+p3 <- multiPlotSP(trans = trans2, phase = 'Feed', trend = trend2, legend = FALSE,
+                  plot = FALSE, bw = TRUE, size = 2.8, shape = 18, xlab = 'Tiempo (h)', 
+                  ylim = c(0, 1), ybreaks = seq(0, 1, 0.25), xlim = c(0, 6.4), xbreaks = seq(0, 6, 1.5),
+                  arw = TRUE, arw.pos = c(6.3, 6.3, 0.1, 0.5), arw.txt = 'Ciclo', txt.pos = c(6.5, 0.3))
+
+p3
 
 final <- vector()
 for (i in 1:10) final <- c(final, trans2[[i]]$Fraction[10])
 q <- ggplot(data = data.frame(Cycle = 1:10, Frac = final), aes(x = Cycle, y = Frac)) +
-  geom_point(size=2.5) + geom_line() + theme_bw() + scale_x_continuous(breaks = 1:10, limits = c(1, 10)) +
-  scale_y_continuous(limits = c(0, 1)) +
+  geom_point(size=2.5) + theme_bw() + scale_x_continuous(breaks = 0:10, limits = c(0, 11)) + #geom_line() + 
+  scale_y_continuous(limits = c(-1, 2)) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         axis.text.x = element_text(color = "black"), axis.text.y = element_text(color = "black")) +
-  labs(y = expression(Phi['6 hours']), x = 'Cycle number') + theme(text = element_text(size = 9))
-print(q)
+  labs(y = expression(Phi['6 hours']), x = 'Número de ciclo') + #theme(text = element_text(size = 9)) +
+  coord_cartesian(xlim = c(1, 10), ylim = c(0, 1)) + geom_smooth(method = 'lm', fullrange = TRUE, color = 'black', size = 0.4)
+q
 
 if (PDF) dev.off()
 
@@ -207,8 +215,9 @@ po <- transPlot(trans = FracAve[[1]], trend = TransNLSAve[[1]], xbreaks = 0:6, s
 po <- po + theme(text = element_text(size = 9))
 p1 <- transPlotWR(trans = list(TransFrac[[1]], TransFrac[[11]]),
                   trend = list(TransNLSAve[[1]], TransNLSAve[[2]]),
-                  bw = TRUE, srs = 0.55) +
-  theme(text = element_text(size = 9))
+                  bw = TRUE, srs = 0.5, ylim = c(-0.01, 1.01), xlim = c(0, 6.2), xlab = 'Tiempo (h)')# +
+p1
+#  theme(text = element_text(size = 9))
 #p1 <- transPlotWR(trans = list(TransFrac[[1]], TransFrac[[11]]))
 
 #pdf("OptimProfiles.pdf", height = 70/25.4, width = 90/25.4)
@@ -216,5 +225,18 @@ p1 <- transPlotWR(trans = list(TransFrac[[1]], TransFrac[[11]]),
 p1
 #dev.off()
 
-permcoef(trans = FracAve[[1]], conc_0 = AliConc[[1]][1], vol = 85, area = pi*1.25^2)
-
+permcoef(trans = FracAve[[1]], conc0 = AliConc[[1]][1], vol = 85, area = pi*1.25^2)
+conc <- FracAve[[1]][which(FracAve[[1]]$Phase == "Feed"), ]
+y <- log(conc[, 3] / conc[1, 3])
+t <- FracAve[[1]][which(FracAve[[1]]$Phase == "Feed"), 1]
+plot(y ~ t)
+perm <- ggplot(data = data.frame(t = t, y = y), aes(x = t, y = y)) +
+  theme_bw() + geom_point(size = 3, shape = 16)  + labs(y = expression(paste(log[10](C/C[0]))), x = 'Tiempo (h)') +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        axis.text.x = element_text(color = "black"),
+        axis.text.y = element_text(color = "black")) + 
+  #scale_y_continuous(limits = c(0, -5)) + 
+  scale_x_continuous(limits = c(-1, 7)) +  
+  coord_cartesian(xlim = c(0, 6), ylim = c(0, -2.7)) +
+  geom_smooth(method = 'lm', fullrange = TRUE, color = 'black', size = 0.4)
+perm          
